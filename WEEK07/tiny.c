@@ -3,32 +3,38 @@
  *     GET method to serve static and dynamic content
  */
 #include "csapp.h"
+
 void doit(int fd);
-void read_requesthdrs(rio_t* rp);
-int parse_uri(char* uri, char* filename, char* cgiargs);
-void serve_static(int fd, char* filename, int filesize);
-void get_filetype(char* filename, char* filetype);
-void serve_dynamic(int fd, char* filenmae, char* cgiargs);
-void clienterror(int fd, char* cause, char* errnum,
-                 char* shortmsg, char* longmsg);
+
+void read_requesthdrs(rio_t *rp);
+
+int parse_uri(char *uri, char *filename, char *cgiargs);
+
+void serve_static(int fd, char *filename, int filesize);
+
+void get_filetype(char *filename, char *filetype);
+
+void serve_dynamic(int fd, char *filenmae, char *cgiargs);
+
+void clienterror(int fd, char *cause, char *errnum,
+                 char *shortmsg, char *longmsg);
 /**
  *	@fn		main
  *
- *	@brief                      Tiny main 猷⑦떞, TINY�뒗 諛섎났�떎�뻾 �꽌踰꾨줈 紐낅졊以꾩뿉�꽌 �꽆寃⑤컺���
- *                              �룷�듃濡쒖쓽 �뿰寃� �슂泥��쓣 �뱽�뒗�떎. open_listenfd �븿�닔瑜� �샇異쒗빐�꽌
- *                              �뱽湲� �냼耳볦쓣 �삤�뵂�븳 �썑�뿉, TINY�뒗 �쟾�삎�쟻�씤 臾댄븳 �꽌踰� 猷⑦봽瑜�
- *                              �떎�뻾�븯怨�, 諛섎났�쟻�쑝濡� �뿰寃� �슂泥��쓣 �젒�닔�븯怨�, �듃�옓�옲�뀡�쓣
- *                              �닔�뻾�븯怨�, �옄�떊 履쎌쓽 �뿰寃� �걹�쓣 �떕�뒗�떎.
+ *	@brief                      Tiny main 루틴, TINY는 반복실행 서버로 명령줄에서 넘겨받은
+ *                              포트로의 연결 요청을 듣는다. open_listenfd 함수를 호출해서
+ *                              듣기 소켓을 오픈한 후에, TINY는 전형적인 무한 서버 루프를
+ *                              실행하고, 반복적으로 연결 요청을 접수하고, 트랙잭션을
+ *                              수행하고, 자신 쪽의 연결 끝을 닫는다.
  *
  *  @param  int argc
  *  @param  char **argv
  *
  *	@return	int
  */
-// fd : �뙆�씪 �삉�뒗 �냼耳볦쓣 吏�移��븯湲� �쐞�빐 遺��뿬�븳 �닽�옄
+// fd : 파일 또는 소켓을 지칭하기 위해 부여한 숫자
 // socket
-int main(int argc, char **argv) //안녕하세요 기모띠
-{
+int main(int argc, char **argv) {
     int listenfd, connfd;
     char hostname[MAXLINE], port[MAXLINE];
     socklen_t clientlen;
@@ -39,129 +45,132 @@ int main(int argc, char **argv) //안녕하세요 기모띠
         exit(1);
     }
     listenfd = Open_listenfd(argv[1]);
-    while (1) { // 臾댄븳 �꽌踰� 猷⑦봽
+    while (1) { // 무한 서버 루프
 
         clientlen = sizeof(clientaddr);
-        connfd = Accept(listenfd, (SA*)&clientaddr, &clientlen); // 諛섎났�쟻�쑝濡� �뿰寃� �슂泥��쓣 �젒�닔
-        Getnameinfo((SA*)&clientaddr, clientlen, hostname, MAXLINE,
+        connfd = Accept(listenfd, (SA *) &clientaddr, &clientlen); // 반복적으로 연결 요청을 접수
+        Getnameinfo((SA *) &clientaddr, clientlen, hostname, MAXLINE,
                     port, MAXLINE, 0);
         printf("Accepted connection from (%s, %s)\n", hostname, port);
-        doit(connfd); // �듃�옖�옲�뀡 �닔�뻾   kjkjlkjsdasd
-        Close(connfd); // �옄�떊 履쎌쓽 �뿰寃� �걹�쓣 �떕�뒗�떎.
+        doit(connfd); // 트랜잭션 수행   kjkjlkjsdasd
+        Close(connfd); // 자신 쪽의 연결 끝을 닫는다.
         printf("===============================================\n\n");
 
     }
 }
+
 /**
  *	@fn		doit
  *
- *	@brief                      Tiny main 猷⑦떞, TINY�뒗 諛섎났�떎�뻾 �꽌踰꾨줈 紐낅졊以꾩뿉�꽌 �꽆寃⑤컺���
- *                              �룷�듃濡쒖쓽 �뿰寃� �슂泥��쓣 �뱽�뒗�떎. open_listenfd �븿�닔瑜� �샇異쒗빐�꽌
- *                              �뱽湲� �냼耳볦쓣 �삤�뵂�븳 �썑�뿉, TINY�뒗 �쟾�삎�쟻�씤 臾댄븳 �꽌踰� 猷⑦봽瑜�
- *                              �떎�뻾�븯怨�, 諛섎났�쟻�쑝濡� �뿰寃� �슂泥��쓣 �젒�닔�븯怨�, �듃�옓�옲�뀡�쓣
- *                              �닔�뻾�븯怨�, �옄�떊 履쎌쓽 �뿰寃� �걹�쓣 �떕�뒗�떎.
+ *	@brief                      Tiny main 루틴, TINY는 반복실행 서버로 명령줄에서 넘겨받은
+ *                              포트로의 연결 요청을 듣는다. open_listenfd 함수를 호출해서
+ *                              듣기 소켓을 오픈한 후에, TINY는 전형적인 무한 서버 루프를
+ *                              실행하고, 반복적으로 연결 요청을 접수하고, 트랙잭션을
+ *                              수행하고, 자신 쪽의 연결 끝을 닫는다.
  *
  *  @param  int argc
  *  @param  char **argv
  *
  *	@return	void
  */
-void doit(int fd)
-{
+void doit(int fd) {
     int is_static;
     struct stat sbuf;
     char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
     char filename[MAXLINE], cgiargs[MAXLINE];
     rio_t rio;
     /* Read request line and headers */
-    Rio_readinitb(&rio, fd); // &rio 二쇱냼瑜� 媛�吏��뒗 踰꾪띁瑜� 留뚮뱺�떎.
-    Rio_readlineb(&rio, buf, MAXLINE); // 踰꾪띁�뿉�꽌 �씫��� 寃껋씠 �떞寃⑥엳�떎.
+    Rio_readinitb(&rio, fd); // &rio 주소를 가지는 버퍼를 만든다.
+    Rio_readlineb(&rio, buf, MAXLINE); // 버퍼에서 읽은 것이 담겨있다.
     printf("Request headers:\n");
     printf("%s", buf); // "GET / HTTP/1.1"
-    sscanf(buf, "%s %s %s", method, uri, version); // 踰꾪띁�뿉�꽌 �옄猷뚰삎�쓣 �씫�뒗�떎, 遺꾩꽍�븳�떎.
+    sscanf(buf, "%s %s %s", method, uri, version); // 버퍼에서 자료형을 읽는다, 분석한다.
 
-    //硫붿냼�뱶媛� get�씠 �븘�땲硫� �뿉�윭瑜� 諭됯퀬 醫낅즺�븳�떎
-    if (strcasecmp(method, "GET")) { //臾몄옄�뿴�쓽 ����냼瑜� 臾댁떆�븯 鍮꾧탳�븳�떎.
+    //메소드가 get이 아니면 에러를 뱉고 종료한다
+
+    if (strcasecmp(method, "POST") == 0) {
+        printf("POSTPOSTPOSTPOST\n");
+    } else if (strcasecmp(method, "GET") == 0) {
+        // get인경우
+
+        read_requesthdrs(&rio);
+
+        /* Parse URI from GET request */
+        //uri를 분석한다.
+        // 파일이 없는 경우 에러를 띄운다/
+        //parse_uri를 들어가기 전에 filename과 cgiargs는 없다.
+        is_static = parse_uri(uri, filename, cgiargs);
+        printf("uri : %s, filename : %s, cgiargs : %s \n", uri, filename, cgiargs);
+
+        if (stat(filename, &sbuf) < 0) { //stat는 파일 정보를 불러오고 sbuf에 내용을 적어준다. ok 0, errer -1
+            clienterror(fd, filename, "404", "Not found",
+                        "Tiny couldn't find this file");
+            return;
+        }
+
+        // 정적 콘텐츠일경우
+        if (is_static) { /* Serve static content */
+            //파일 읽기 권한이 있는지 확인하기
+            //S_ISREG : 일반 파일인가? , S_IRUSR: 읽기 권한이 있는지? S_IXUSR 실행권한이 있는가?
+            if (!(S_ISREG(sbuf.st_mode)) || !(S_IRUSR & sbuf.st_mode)) {
+                //권한이 없다면 클라이언트에게 에러를 전달
+                clienterror(fd, filename, "403", "Forbidden",
+                            "Tiny couldn't read the file");
+                return;
+            }
+            //그렇다면 클라이언트에게 파일 제공
+            serve_static(fd, filename, sbuf.st_size);
+        }//정적 컨텐츠가 아닐경우
+        else { /* Serve dynamic content */
+            // 파일이 실행가능한 것인지
+            if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
+                //실행이 불가능하다면 에러를 전
+                clienterror(fd, filename, "403", "Forbidden",
+                            "Tiny couldn't run the CGI program");
+                return;
+            }
+            //그렇다면 클라이언트에게 파일 제공.
+            serve_dynamic(fd, filename, cgiargs);
+        }
+    } else {
+
         clienterror(fd, method, "501", "Not implemented",
                     "Tiny does not implement this method");
         return;
-    }
-    // get�씤寃쎌슦 �떎瑜� �슂泥� �뿤�뜑瑜� 臾댁떆�븳�떎.
 
-    read_requesthdrs(&rio);
-
-    /* Parse URI from GET request */
-    //uri瑜� 遺꾩꽍�븳�떎.
-    // �뙆�씪�씠 �뾾�뒗 寃쎌슦 �뿉�윭瑜� �쓣�슫�떎/
-    //parse_uri瑜� �뱾�뼱媛�湲� �쟾�뿉 filename怨� cgiargs�뒗 �뾾�떎.
-    is_static = parse_uri(uri, filename, cgiargs);
-    printf("uri : %s, filename : %s, cgiargs : %s \n", uri, filename, cgiargs);
-
-    if (stat(filename, &sbuf) < 0) { //stat�뒗 �뙆�씪 �젙蹂대�� 遺덈윭�삤怨� sbuf�뿉 �궡�슜�쓣 �쟻�뼱以��떎. ok 0, errer -1
-        clienterror(fd, filename, "404", "Not found",
-                    "Tiny couldn't find this file");
-        return;
     }
 
-    // �젙�쟻 肄섑뀗痢좎씪寃쎌슦
-    if (is_static) { /* Serve static content */
-        //�뙆�씪 �씫湲� 沅뚰븳�씠 �엳�뒗吏� �솗�씤�븯湲�
-        //S_ISREG : �씪諛� �뙆�씪�씤媛�? , S_IRUSR: �씫湲� 沅뚰븳�씠 �엳�뒗吏�? S_IXUSR �떎�뻾沅뚰븳�씠 �엳�뒗媛�?
-        if (!(S_ISREG(sbuf.st_mode)) || !(S_IRUSR & sbuf.st_mode)) {
-            //沅뚰븳�씠 �뾾�떎硫� �겢�씪�씠�뼵�듃�뿉寃� �뿉�윭瑜� �쟾�떖
-            clienterror(fd, filename, "403", "Forbidden",
-                        "Tiny couldn't read the file");
-            return;
-        }
-        //洹몃젃�떎硫� �겢�씪�씠�뼵�듃�뿉寃� �뙆�씪 �젣怨�
-        serve_static(fd, filename, sbuf.st_size);
-    }//�젙�쟻 而⑦뀗痢좉�� �븘�땺寃쎌슦
-   else { /* Serve dynamic content */
-        // �뙆�씪�씠 �떎�뻾媛��뒫�븳 寃껋씤吏�
-        if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
-            //�떎�뻾�씠 遺덇���뒫�븯�떎硫� �뿉�윭瑜� �쟾
-            clienterror(fd, filename, "403", "Forbidden",
-                        "Tiny couldn't run the CGI program");
-            return;
-        }
-        //洹몃젃�떎硫� �겢�씪�씠�뼵�듃�뿉寃� �뙆�씪 �젣怨�.
-        serve_dynamic(fd, filename, cgiargs);
-    }
 }
 
-int parse_uri(char *uri, char *filename, char *cgiargs)
-{
+int parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
-    //cgi-bin�씠 �뾾�떎硫�
+    //cgi-bin이 없다면
     if (!strstr(uri, "cgi-bin")) { /* Static content*/
         strcpy(cgiargs, "");
         strcpy(filename, ".");
-        strcat(filename, uri); // ./uri/home.html �씠 �맂�떎
-        if (uri[strlen(uri)-1] == '/')
+        strcat(filename, uri); // ./uri/home.html 이 된다
+        if (uri[strlen(uri) - 1] == '/')
             strcat(filename, "home.html");
         return 1;
-    }
-    else { /* Dynamic content*/
+    } else { /* Dynamic content*/
         //http://52.79.55.247:1024/cgi-bin/adder?123&456
         ptr = index(uri, '?');
-        //CGI�씤�옄 異붿텧
+        //CGI인자 추출
         if (ptr) {
-            // 臾쇱쓬�몴 �뮘�뿉 �엳�뒗 �씤�옄 �떎 媛뽯떎 遺숈씤�떎.
-            strcpy(cgiargs, ptr+1);
-            //�룷�씤�꽣�뒗 臾몄옄�뿴 留덉��留됱쑝濡� 諛붽씔�떎.
-            *ptr = '\0'; // uri臾쇱쓬�몴 �뮘 �떎 �뾾�븷湲�
-        }
-        else
-            strcpy(cgiargs, ""); // 臾쇱쓬�몴 �뮘 �씤�옄�뱾 �쟾遺� �꽔湲�
-        strcpy(filename, "."); //�굹癒몄�� 遺�遺� �긽���  uri濡� 諛붽퓞,
-        strcat(filename, uri); // ./uri 媛� �맂�떎.
+            // 물음표 뒤에 있는 인자 다 갖다 붙인다.
+            strcpy(cgiargs, ptr + 1);
+            //포인터는 문자열 마지막으로 바꾼다.
+            *ptr = '\0'; // uri물음표 뒤 다 없애기
+        } else
+            strcpy(cgiargs, ""); // 물음표 뒤 인자들 전부 넣기
+        strcpy(filename, "."); //나머지 부분 상대  uri로 바꿈,
+        strcat(filename, uri); // ./uri 가 된다.
         return 0;
     }
 }
 
-//�겢�씪�씠�뼵�듃�뿉寃� �삤瑜� 蹂닿퀬 �븳�떎
-void clienterror(int fd, char* cause, char* errnum,char* shortmsg, char* longmsg)
-{
+//클라이언트에게 오류 보고 한다
+void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg) {
     char buf[MAXLINE], body[MAXBUF];
     /* Build the HTTP response body */
     sprintf(body, "<html><title>Tiny Error</title>");
@@ -174,94 +183,88 @@ void clienterror(int fd, char* cause, char* errnum,char* shortmsg, char* longmsg
     Rio_writen(fd, buf, strlen(buf));
     sprintf(buf, "Content-type: text/html\r\n");
     Rio_writen(fd, buf, strlen(buf));
-    sprintf(buf, "Content-length: %d\r\n\r\n", (int)strlen(body));
+    sprintf(buf, "Content-length: %d\r\n\r\n", (int) strlen(body));
     Rio_writen(fd, buf, strlen(buf));
     Rio_writen(fd, body, strlen(body));
 }
 
-//�슂泥� �뿤�뜑 �씫湲�
-void read_requesthdrs(rio_t* rp)
-{
+//요청 헤더 읽기
+void read_requesthdrs(rio_t *rp) {
     char buf[MAXLINE];
-    Rio_readlineb(rp, buf, MAXLINE); // 踰꾪꽣�뿉�꽌 MAXLINE 源뚯�� �씫湲�
-    while (strcmp(buf, "\r\n")) {  //�걹以� �굹�삱 �븣 源뚯�� �씫�뒗�떎
+    Rio_readlineb(rp, buf, MAXLINE); // 버터에서 MAXLINE 까지 읽기
+    while (strcmp(buf, "\r\n")) {  //끝줄 나올 때 까지 읽는다
         Rio_readlineb(rp, buf, MAXLINE);
     }
     return;
 }
 
-void serve_dynamic(int fd, char *filename, char *cgiargs)
-{
-    char buf[MAXLINE], *emptylist[] = { NULL };
+void serve_dynamic(int fd, char *filename, char *cgiargs) {
+    char buf[MAXLINE], *emptylist[] = {NULL};
 
     /* Return first part of HTTP response*/
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    Rio_writen(fd, buf, strlen(buf)); //�솢 �몢踰� �벐�굹�슂?
-    sprintf(buf,"Server: Tiny Web Server\r\n");
+    Rio_writen(fd, buf, strlen(buf)); //왜 두번 쓰나요?
+    sprintf(buf, "Server: Tiny Web Server\r\n");
     Rio_writen(fd, buf, strlen(buf));
-    //fd�뒗 �젙蹂대�� 諛쏆옄留덉옄 �쟾�넚�븯�굹�슂???
-    //�겢�씪�씠�뼵�듃�뒗 �꽦怨듭쓣 �븣�젮二쇰뒗 �쓳�떟�씪�씤�쓣 蹂대궡�뒗 寃껋쑝濡� �떆�옉�븳�떎.
-    if (Fork() == 0) { //����씠�땲�뒗 �옄�떇�봽濡쒖꽭�뒪瑜� �룷�겕�븯怨� �룞�쟻 而⑦뀗痢좊�� �젣怨듯븳�떎.
+    //fd는 정보를 받자마자 전송하나요???
+    //클라이언트는 성공을 알려주는 응답라인을 보내는 것으로 시작한다.
+    if (Fork() == 0) { //타이니는 자식프로세스를 포크하고 동적 컨텐츠를 제공한다.
         setenv("QUERY_STRING", cgiargs, 1);
-        //�옄�떇��� QUERY_STRING �솚寃쎈���닔瑜� �슂泥� uri�쓽 cgi�씤�옄濡� 珥덇린�솕 �븳�떎.  (15000 & 213)
-        Dup2(fd, STDOUT_FILENO); //�옄�떇��� �옄�떇�쓽 �몴以� 異쒕젰�쓣 �뿰寃� �뙆�씪 �떇蹂꾩옄濡� �옱吏��젙�븯怨�,
+        //자식은 QUERY_STRING 환경변수를 요청 uri의 cgi인자로 초기화 한다.  (15000 & 213)
+        Dup2(fd, STDOUT_FILENO); //자식은 자식의 표준 출력을 연결 파일 식별자로 재지정하고,
 
         Execve(filename, emptylist, environ);
-        // 洹� �썑�뿉 cgi�봽濡쒓렇�옩�쓣 濡쒕뱶�븯怨� �떎�뻾�븳�떎.
-        // �옄�떇��� 蹂몄씤 �떎�뻾 �뙆�씪�쓣 �샇異쒗븯湲� �쟾 議댁옱�븯�뜕 �뙆�씪怨�, �솚寃쎈���닔�뱾�뿉�룄 �젒洹쇳븷 �닔 �엳�떎.
+        // 그 후에 cgi프로그램을 로드하고 실행한다.
+        // 자식은 본인 실행 파일을 호출하기 전 존재하던 파일과, 환경변수들에도 접근할 수 있다.
 
     }
-    Wait(NULL); //遺�紐⑤뒗 �옄�떇�씠 醫낅즺�릺�뼱 �젙由щ릺�뒗 寃껋쓣 湲곕떎由곕떎.
+    Wait(NULL); //부모는 자식이 종료되어 정리되는 것을 기다린다.
 }
 
-// fd �쓳�떟諛쏅뒗 �냼耳�(�뿰寃곗떇蹂꾩옄), �뙆�씪 �씠由�, �뙆�씪 �궗�씠利�
-void serve_static(int fd, char *filename, int filesize){
+// fd 응답받는 소켓(연결식별자), 파일 이름, 파일 사이즈
+void serve_static(int fd, char *filename, int filesize) {
     int srcfd;
     char *srcp, filetype[MAXLINE], buf[MAXBUF];
     /* send response headers to client*/
-    //�뙆�씪 �젒誘몄뼱 寃��궗�빐�꽌 �뙆�씪�씠由꾩뿉�꽌 ����엯 媛�吏�怨�
-    get_filetype(filename, filetype);  // �젒誘몄뼱瑜� �넻�빐 �뙆�씪 ����엯 寃곗젙�븳�떎.
-    // �겢�씪�씠�뼵�듃�뿉寃� �쓳�떟 以꾧낵 �쓳�떟 �뿤�뜑 蹂대궦�떎湲�
-    // �겢�씪�씠�뼵�듃�뿉寃� �쓳�떟 蹂대궡湲�
-    // �뜲�씠�꽣瑜� �겢�씪�씠�뼵�듃濡� 蹂대궡湲� �쟾�뿉 踰꾪띁濡� �엫�떆濡� 媛�吏�怨� �엳�뒗�떎.
+    //파일 접미어 검사해서 파일이름에서 타입 가지고
+    get_filetype(filename, filetype);  // 접미어를 통해 파일 타입 결정한다.
+    // 클라이언트에게 응답 줄과 응답 헤더 보낸다기
+    // 클라이언트에게 응답 보내기
+    // 데이터를 클라이언트로 보내기 전에 버퍼로 임시로 가지고 있는다.
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
     sprintf(buf, "%sServer : Tiny Web Server \r\n", buf);
     sprintf(buf, "%sConnection : close \r\n", buf);
     sprintf(buf, "%sConnect-length : %d \r\n", buf, filesize);
     sprintf(buf, "%sContent-type : %s \r\n\r\n", buf, filetype);
     Rio_writen(fd, buf, strlen(buf));
-
-    //rio_readn��� fd�쓽 �쁽�옱 �뙆�씪 �쐞移섏뿉�꽌 硫붾え由� �쐞移� usrbuf濡� 理쒕�� n諛붿씠�듃瑜� �쟾�넚�븳�떎.
-    //rio_writen��� usrfd�뿉�꽌 �떇蹂꾩옄 fd濡� n諛붿씠�듃瑜� �쟾�넚�븳�떎.
-    //�꽌踰꾩뿉 異쒕젰
+    //rio_readn은 fd의 현재 파일 위치에서 메모리 위치 usrbuf로 최대 n바이트를 전송한다.
+    //rio_writen은 usrfd에서 식별자 fd로 n바이트를 전송한다.
+    //서버에 출력
     printf("Response headers : \n");
     printf("%s", buf);
 
-    //�씫�쓣 �닔 �엳�뒗 �뙆�씪濡� �뿴湲�
-    srcfd = Open(filename, O_RDONLY, 0); //open read only �씫怨�
-    //PROT_READ -> �럹�씠吏��뒗 �씫�쓣 �닔留� �엳�떎.
-    // �뙆�씪�쓣 �뼱�뼡 硫붾え由� 怨듦컙�뿉 ����쓳�떆�궎怨� 泥レ＜�냼瑜� 由ы꽩
-    // srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0); //硫붾え由щ줈 �꽆湲곌퀬
+    //읽을 수 있는 파일로 열기
+    srcfd = Open(filename, O_RDONLY, 0); //open read only 읽고
+    //PROT_READ -> 페이지는 읽을 수만 있다.
+    // 파일을 어떤 메모리 공간에 대응시키고 첫주소를 리턴
+//    srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0); //메모리로 넘기고
+    srcp = (char *) Malloc(filesize);
+    Rio_readn(srcfd, srcp, filesize);
+    //매핑위치, 매핑시킬 파일의 길이, 메모리 보호정책, 파일공유정책,srcfd ,매핑할때 메모리 오프셋
 
-    srcp = (char*)Malloc(filesize);
-    Rio_readn(srcfd, srcp, filesize); 
-
-    //留ㅽ븨�쐞移�, 留ㅽ븨�떆�궗 �뙆�씪�쓽 湲몄씠, 硫붾え由� 蹂댄샇�젙梨�, �뙆�씪怨듭쑀�젙梨�,srcfd ,留ㅽ븨�븷�븣 硫붾え由� �삤�봽�뀑
-//    srcp = malloc(sizeof(srcfd));
-
-    Close(srcfd);//�떕湲�
+    Close(srcfd);//닫기
 
 
     Rio_writen(fd, srcp, filesize);
-    // mmap() �쑝濡� 留뚮뱾�뼱吏� -留듯븨�쓣 �젣嫄고븯湲� �쐞�븳 �떆�뒪�뀥 �샇異쒖씠�떎
-    // ����쓳�떆�궓 ����꽍�쓣 ����뼱以��떎. �쑀�슚�븯吏� �븡��� 硫붾え由щ줈 留뚮벀
+    // mmap() 으로 만들어진 -맵핑을 제거하기 위한 시스템 호출이다
+    // 대응시킨 녀석을 풀어준다. 유효하지 않은 메모리로 만듦
     // void *mmap(void *start, size_t length, int prot, int flags, int fd, off_t offset);
     // int munmap(void *start, size_t length);
-    // Munmap(srcp, filesize); //硫붾え由� �빐�젣
     free(srcp);
+//    Munmap(srcp, filesize); //메모리 해제
 }
 
-void get_filetype(char *filename, char *filetype){
+void get_filetype(char *filename, char *filetype) {
     if (strstr(filename, ".html"))
         strcpy(filetype, "text/html");
     else if (strstr(filename, ".gif"))
@@ -276,4 +279,3 @@ void get_filetype(char *filename, char *filetype){
         strcpy(filetype, "text/plain");
 
 }
-
