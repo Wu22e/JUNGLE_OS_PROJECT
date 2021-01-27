@@ -33,6 +33,8 @@ int main(int argc, char ** argv){
      *  @fn                 open_clientfd 
      *      
      *  @brief              클라이언트는 open_clientfd를 호출해서 서버와 연결을 설정한다.
+     *                      open_clientfd함수는 호스트 hostname에서 돌아가고, 포트번호 port에 연결 요청을 듣는 서버와 연결을 설정한다.
+     *                      이것은 Unix I/O 함수를 이용해서 입력과 출력에 대해 준비된 열린 소켓 식별자를 리턴한다.
      *                                           
      * 
      *  @param    host
