@@ -1,3 +1,11 @@
+/**
+ *	@program		adder.c
+ *
+ *	@brief          동적 컨텐츠를 처리해 주는 자식(serve_dynamic에서 Fork로 생성됨.)
+ *
+ * 
+ */
+
 #include "../csapp.h"
 
 int main(void) {
@@ -9,9 +17,9 @@ int main(void) {
     sprintf(content, "%sTHE Internet addition portal.\r\n<p>", content);
 
     if ((buf = getenv("QUERY_STRING")) != NULL) {
-//        sprintf(content, "%s argv Slising \r\n<p>", content);
+    //sprintf(content, "%s argv Slising \r\n<p>", content);
 
-        p = strchr(buf, '&');
+        p = strchr(buf, '&'); // strchr : 문자열 내에 일치하는 문자가 있는지 검사하는 함수.
         *p = '\0';
         strcpy(arg1, buf);
         strcpy(arg2, p+1);
