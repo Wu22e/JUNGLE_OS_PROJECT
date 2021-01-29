@@ -123,11 +123,11 @@ static void removeFreeBlock(void* bp);
   * mm_init - Initializes the heap like that shown below.
   *
   * FREE BLOCK
-  * |------------|------------|------------|-------------|------------|
-  * |   PADDING  |   HEADER   |   PREV     |   NEXT      |   FOOTER   |
-  * |------------|------------|------------|-------------|------------|
-  * ^                         ^
-  * heap_listp                bp = free_listp
+  * |-------------|------------|----------|-----------|------------|
+  * |   PADDING   |   HEADER   |   PREV   |   NEXT    |   FOOTER   |
+  * |-------------|------------|----------|-----------|------------|
+  * ^                          ^
+  * heap_listp                 bp = free_listp
   */
 
 int mm_init(void)
@@ -141,13 +141,13 @@ int mm_init(void)
         return -1;
 
     /* 처음 블록 부분을 초기화 한다. */
-    PUT(heap_listp, 0);                                // Padding
-    PUT(heap_listp + (1 * WSIZE), PACK(MINIMUM, 1));                  // Free block header
-    PUT(heap_listp + (2 * WSIZE), PACK(0, 0));                             // Space for prev pointer
-    PUT(heap_listp + (3 * WSIZE), PACK(0, 0));                             // Space for next pointer
-    PUT(heap_listp + (4 * WSIZE), PACK(MINIMUM, 1));                  // Free block footer
+    PUT(heap_listp, 0);                                                 // Padding
+    PUT(heap_listp + (1 * WSIZE), PACK(MINIMUM, 1));                    // Free block header
+    PUT(heap_listp + (2 * WSIZE), PACK(0, 0));                          // Space for prev pointer
+    PUT(heap_listp + (3 * WSIZE), PACK(0, 0));                          // Space for next pointer
+    PUT(heap_listp + (4 * WSIZE), PACK(MINIMUM, 1));                    // Free block footer
     /* epilogue 블록을 초기화 한다. */
-    PUT(heap_listp + (5 * WSIZE), PACK(0, 1));                             // Epilogue header
+    PUT(heap_listp + (5 * WSIZE), PACK(0, 1));                          // Epilogue header
 
     // 가용 리스트 포인터를 초기화 한다.
     free_listp = heap_listp + DSIZE;
