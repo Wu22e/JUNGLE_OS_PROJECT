@@ -17,6 +17,7 @@
 
 
 #define ROUNDROBBINx
+
 /* Random value for struct thread's `magic' member.
    Used to detect stack overflow.  See the big comment at the top
    of thread.h for details. */
@@ -205,9 +206,7 @@ int64_t get_next_tick_to_awake(void) {
 /* 현재 수행중인 스레드와 가장 높은 우선순위의 스레드의 우선순위를 비교하여 스케줄링 */
 void test_max_priority(void) {
 
-	if (!list_empty(&ready_list) && 
-		thread_current() ->priority <
-		list_entry(list_begin(&ready_list), struct thread, elem)->priority){
+	if (!list_empty(&ready_list) && cmp_priority(list_begin(&ready_list), &thread_current()->elem, NULL)){
 		thread_yield();
 	}
 }
@@ -217,8 +216,34 @@ bool
 cmp_priority(const struct list_elem* a,
 	const struct list_elem* b,
 	void* aux UNUSED) {
-	return list_entry(a, struct thread, elem)->priority < list_entry(b, struct thread, elem)->priority;
+	return list_entry(a, struct thread, elem)->priority > list_entry(b, struct thread, elem)->priority;
 	/* 인자로 주어진 스레드들의 우선순위를 비교 */
+}
+
+void donate_priority(void)
+{
+	/* priority donation 을 수행하는 함수를 구현한다.
+	현재 스레드가 기다리고 있는 lock 과 연결 된 모든 스레드들을 순회하며
+	현재 스레드의 우선순위를 lock 을 보유하고 있는 스레드에게 기부 한다.
+	(Nested donation 그림 참고, nested depth 는 8로 제한한다. ) */
+}
+
+void remove_with_lock(struct lock* lock)
+{
+	/* lock 을 해지 했을때 donations 리스트에서 해당 엔트리를
+	삭제 하기 위한 함수를 구현한다. */
+	/* 현재 스레드의 donations 리스트를 확인하여 해지 할 lock 을
+	보유하고 있는 엔트리를 삭제 한다. */
+}
+
+void refresh_priority(void)
+{
+	/* 스레드의 우선순위가 변경 되었을때 donation 을 고려하여
+	우선순위를 다시 결정 하는 함수를 작성 한다. */
+	/* 현재 스레드의 우선순위를 기부받기 전의 우선순위로 변경 */
+	/* 가장 우선수위가 높은 donations 리스트의 스레드와
+	현재 스레드의 우선순위를 비교하여 높은 값을 현재 스레드의
+	우선순위로 설정한다. */
 }
 
 
@@ -418,8 +443,16 @@ thread_yield (void) {
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
+/* 스레드 우선순위 변경시 donation의 발생을 확인 하고 우선순위 변경을
+   위해 donation_priority()함수 추가 */
 void
 thread_set_priority (int new_priority) {
+	/* donation 을 고려하여 thread_set_priority() 함수를 수정한다 */
+	/* refresh_priority() 함수를 사용하여 우선순위를 변경으로 인한
+	   donation 관련 정보를 갱신한다.
+	   donation_priority(), test_max_pariority() 함수를 적절히
+	   사용하여 priority donation 을 수행하고 스케줄링 한다. */
+
 	thread_current()->priority = new_priority;
 	if (!list_empty(&ready_list)) {
 		if (new_priority < list_entry(list_begin(&ready_list), struct thread, elem)->priority) {
@@ -516,6 +549,8 @@ init_thread (struct thread *t, const char *name, int priority) {
 	ASSERT (t != NULL);
 	ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
 	ASSERT (name != NULL);
+
+	list_init(t->donations); /* Priority donation관련 자료구조 초기화 */
 
 	memset (t, 0, sizeof *t);
 	t->status = THREAD_BLOCKED;

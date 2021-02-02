@@ -13,5 +13,6 @@ FAIL tests/threads/priority-donate-sema
 FAIL tests/threads/priority-donate-lower
 pass tests/threads/priority-fifo
 pass tests/threads/priority-preempt
-FAIL tests/threads/priority-sema
+pass tests/threads/priority-sema
 FAIL tests/threads/priority-donate-chain
+pass tests/threads/condvar/priority-condvar
