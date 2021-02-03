@@ -17,6 +17,7 @@
 
 
 #define ROUNDROBBINx
+#define DONATION
 
 /* Random value for struct thread's `magic' member.
    Used to detect stack overflow.  See the big comment at the top
@@ -226,24 +227,67 @@ void donate_priority(void)
 	현재 스레드가 기다리고 있는 lock 과 연결 된 모든 스레드들을 순회하며
 	현재 스레드의 우선순위를 lock 을 보유하고 있는 스레드에게 기부 한다.
 	(Nested donation 그림 참고, nested depth 는 8로 제한한다. ) */
+
+	struct thread* thread= thread_current()->wait_on_lock->holder;
+	/*for (thread; thread->wait_on_lock != NULL && thread != NULL ; thread = thread->wait_on_lock->holder) {
+		if (thread->priority < thread_current()->priority) {
+			thread->priority = thread_current()->priority;
+		}
+	}*/
+	while (thread != NULL) {
+		if (thread->priority < thread_current()->priority) {
+			thread->priority = thread_current()->priority;
+		}
+		if (thread->wait_on_lock != NULL) {
+			thread = thread->wait_on_lock->holder;
+		}
+		else
+			break;
+	}
 }
 
+/* lock 을 해지 했을때 donations 리스트에서 해당 엔트리를
+	삭제 하기 위한 함수를 구현한다. */
 void remove_with_lock(struct lock* lock)
 {
-	/* lock 을 해지 했을때 donations 리스트에서 해당 엔트리를
-	삭제 하기 위한 함수를 구현한다. */
+	
 	/* 현재 스레드의 donations 리스트를 확인하여 해지 할 lock 을
 	보유하고 있는 엔트리를 삭제 한다. */
+	struct list_elem* e = list_begin(&thread_current()->donations);
+
+	/*for (e; e != list_end(&thread_current()->donations); e = list_next(e)) {
+		if (list_entry(e, struct thread, donation_elem)->wait_on_lock == lock) {
+			list_remove(e);
+		}
+	}*/
+	while (e != list_end(&thread_current()->donations)) {
+		if (list_entry(e, struct thread, donation_elem)->wait_on_lock == lock) {
+			e = list_remove(e);
+		}
+		else {
+			e = list_next(e);
+		}
+	}
 }
 
+/* 스레드의 우선순위가 변경 되었을때 donation 을 고려하여
+우선순위를 다시 결정 하는 함수를 작성 한다. */
 void refresh_priority(void)
 {
-	/* 스레드의 우선순위가 변경 되었을때 donation 을 고려하여
-	우선순위를 다시 결정 하는 함수를 작성 한다. */
+
 	/* 현재 스레드의 우선순위를 기부받기 전의 우선순위로 변경 */
 	/* 가장 우선수위가 높은 donations 리스트의 스레드와
 	현재 스레드의 우선순위를 비교하여 높은 값을 현재 스레드의
 	우선순위로 설정한다. */
+	thread_current()->priority = thread_current()->init_priority;
+
+	if (!list_empty(&thread_current()->donations)) {
+		list_sort(&thread_current()->donations, cmp_priority, NULL);
+		struct thread* thread = list_entry(list_begin(&thread_current()->donations), struct thread, donation_elem);
+		if (thread->priority > thread_current()->priority) {
+			thread_current()->priority = thread->priority;
+		}
+	}
 }
 
 
@@ -454,11 +498,20 @@ thread_set_priority (int new_priority) {
 	   사용하여 priority donation 을 수행하고 스케줄링 한다. */
 
 	thread_current()->priority = new_priority;
+#ifdef DONATION
+	thread_current()->init_priority = new_priority;
+
+	refresh_priority();
+
+	test_max_priority();
+#endif
+#ifndef DONATION
 	if (!list_empty(&ready_list)) {
 		if (new_priority < list_entry(list_begin(&ready_list), struct thread, elem)->priority) {
 			thread_yield();
 		}
 	}
+#endif
 }
 
 /* Returns the current thread's priority. */
@@ -550,14 +603,17 @@ init_thread (struct thread *t, const char *name, int priority) {
 	ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
 	ASSERT (name != NULL);
 
-	list_init(t->donations); /* Priority donation관련 자료구조 초기화 */
-
 	memset (t, 0, sizeof *t);
 	t->status = THREAD_BLOCKED;
 	strlcpy (t->name, name, sizeof t->name);
 	t->tf.rsp = (uint64_t) t + PGSIZE - sizeof (void *);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
+
+	t->init_priority = priority; /* 바뀔 일이 없음 */
+	t->wait_on_lock = NULL;
+	list_init(&t->donations); /* Priority donation관련 자료구조 초기화 */
+
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should

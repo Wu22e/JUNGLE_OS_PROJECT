@@ -27,7 +27,7 @@ bool cmp_sem_priority(const struct list_elem* a,
 
 /* Lock. */
 struct lock {
-	struct thread *holder;      /* Thread holding lock (for debugging). */
+	struct thread *holder;      /* Thread holding lock (for debugging). */ //lock을 요청받을 쓰레드의 주소
 	struct semaphore semaphore; /* Binary semaphore controlling access. */
 };
 

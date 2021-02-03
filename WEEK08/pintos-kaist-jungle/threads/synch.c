@@ -58,6 +58,9 @@ sema_init (struct semaphore *sema, unsigned value) {
    interrupts disabled, but if it sleeps then the next scheduled
    thread will probably turn interrupts back on. This is
    sema_down function. */
+/* lock 요청시 콜되는 함수 
+   lock을 받고난뒤 sema value값을 낮춰주고, 0이되면 기다려준다.
+*/
 void
 sema_down (struct semaphore *sema) {
 	enum intr_level old_level;
@@ -66,13 +69,13 @@ sema_down (struct semaphore *sema) {
 	ASSERT (!intr_context ());
 
 	old_level = intr_disable ();
-	while (sema->value == 0) {
+	while (sema->value == 0) { //왜 while?
 #ifdef FIFO
 		list_push_back(&sema->waiters, &thread_current()->elem);
 #endif
 		/* waiters 리스트 삽입 시, 우선순위대로 삽입되도록 수정 */
 		list_insert_ordered(&sema->waiters, &thread_current()->elem, cmp_priority, NULL);
-		thread_block ();
+		thread_block (); // block 해놓고 schedule함 (딴데로감)
 	}
 	sema->value--;
 	intr_set_level (old_level);
@@ -216,21 +219,23 @@ void
 lock_acquire (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (!intr_context ());
-	ASSERT (!lock_held_by_current_thread (lock));
+	ASSERT (!lock_held_by_current_thread (lock)); // 내가 현재 락을가지고있지 않아야 함.
 
 	/* 해당 lock 의 holder가 존재 한다면 아래 작업을 수행한다. */
 	/* 현재 스레드의 wait_on_lock 변수에 획득 하기를 기다리는 lock의 주소를 저장 */
 	/* multiple donation 을 고려하기 위해 이전상태의 우선순위를 기억,
 	   donation 을 받은 스레드의 thread 구조체를 list로 관리한다. */
 	/* priority donation 수행하기 위해 donate_priority() 함수 호출 */
-	if (&lock->holder) {
+	if (lock->holder) {
 		thread_current()->wait_on_lock = lock;
-
+		list_insert_ordered(&lock->holder->donations, &thread_current()->donation_elem, cmp_priority, NULL);
+		donate_priority();
 	}
 
 
 	sema_down (&lock->semaphore);
-	thread_current()->wait_on_lock = NULL;
+
+	thread_current()->wait_on_lock = NULL; /* lock을 획득 했으므로 wait_on_lock을 NULL로 변경 */
 
 	/* lock을 획득 한 후 lock holder 를 갱신한다. */
 	lock->holder = thread_current ();
@@ -273,7 +278,7 @@ lock_release (struct lock *lock) {
 
 	lock->holder = NULL;
 	/* remove_with_lock() 함수 추가 */
-	remove_with_lock();
+	remove_with_lock(lock);
 	/* refresh_priority() 함수 추가 */
 	refresh_priority();
 

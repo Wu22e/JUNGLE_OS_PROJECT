@@ -94,8 +94,8 @@ struct thread {
 	/* 쓰레드 디스크립터 필드 추가 */
 	int64_t wakeup_tick;				/* 깨어나야 할 tick을 저장할 변수 추가 */
 
-	int init_priority; /*  donation 이후 우선순위를 초기화하기 위해 초기값 저장 */
-	struct lock* wait_on_lock; /* 해당 스레드가 대기 하고 있는 lock자료구조의 주소를 저장 */
+	int init_priority; /*  donation 이후 우선순위를 초기화하기 위해 초기값 저장 */ // 내가 처음만들어진 우선순위, set priority를 해야 바뀐다. (donation으로 인해 바껴도 바뀌지 않는다)
+	struct lock* wait_on_lock; /* 해당 스레드가 대기 하고 있는 lock자료구조의 주소를 저장 */ // 
 	struct list donations; /* multiple donation 을 고려하기 위해 사용 */
 	struct list_elem donation_elem; /* multiple donation 을 고려하기 위해 사용 */
 
