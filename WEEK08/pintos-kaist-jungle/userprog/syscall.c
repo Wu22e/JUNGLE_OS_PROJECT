@@ -8,8 +8,8 @@
 #include "threads/flags.h"
 #include "intrinsic.h"
 
-void syscall_entry (void);
-void syscall_handler (struct intr_frame *);
+void syscall_entry(void);
+void syscall_handler(struct intr_frame*);
 
 /* System call.
  *
@@ -25,22 +25,164 @@ void syscall_handler (struct intr_frame *);
 #define MSR_SYSCALL_MASK 0xc0000084 /* Mask for the eflags */
 
 void
-syscall_init (void) {
-	write_msr(MSR_STAR, ((uint64_t)SEL_UCSEG - 0x10) << 48  |
-			((uint64_t)SEL_KCSEG) << 32);
-	write_msr(MSR_LSTAR, (uint64_t) syscall_entry);
+syscall_init(void) {
+    write_msr(MSR_STAR, ((uint64_t)SEL_UCSEG - 0x10) << 48 |
+        ((uint64_t)SEL_KCSEG) << 32);
+    write_msr(MSR_LSTAR, (uint64_t)syscall_entry);
 
-	/* The interrupt service rountine should not serve any interrupts
-	 * until the syscall_entry swaps the userland stack to the kernel
-	 * mode stack. Therefore, we masked the FLAG_FL. */
-	write_msr(MSR_SYSCALL_MASK,
-			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
+    /* The interrupt service rountine should not serve any interrupts
+     * until the syscall_entry swaps the userland stack to the kernel
+     * mode stack. Therefore, we masked the FLAG_FL. */
+    write_msr(MSR_SYSCALL_MASK,
+        FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
 }
+
+void check_address(void* addr) {
+    if (!is_user_vaddr(addr))
+        exit(-1);
+}
+
+// void get_argument(void* rsp, int* arg, int count) {
+//     for(int i = 0; i < count; i++)
+//         *(arg + i) = *((int *)rsp + i + 1);
+// } 
+
 
 /* The main system call interface */
 void
-syscall_handler (struct intr_frame *f UNUSED) {
-	// TODO: Your implementation goes here.
-	printf ("system call!\n");
-	thread_exit ();
+syscall_handler(struct intr_frame* f UNUSED) {
+    // TODO: Your implementation goes here.
+    printf("system call!\n");
+
+    check_address(f->rsp);
+    // int number = f->rsp; // number = f->R.rax 이렇게 하나 똑같은 거겟지?
+    switch (f->R.rax)
+    {
+    case SYS_HALT:
+        sys_halt();
+        break;
+
+    case SYS_EXIT:
+        // get_argument(f->rsp, args, 1);
+        sys_exit((int)f->R.rdi);
+        break;
+
+    case SYS_FORK:
+        // get_argument(f->rsp, args, 1);
+        f->R.rax = sys_fork((const char*)f->R.rdi);
+        // arg[0] = fork(f->R.rdi); // 이렇게 하면 안되겟지?
+        break;
+
+    case SYS_EXEC:
+        // get_argument(f->rsp, args, 1);
+        f->R.rax = sys_exec((const char*)f->R.rdi);
+        break;
+
+    case SYS_WAIT:
+        // get_argument(f->rsp, args, 1);
+        f->R.rax = sys_wait((pid_t)f->R.rdi);
+        break;
+
+    case SYS_CREATE:
+        f->R.rax = sys_create((const char*)f->R.rdi, (unsigned)f->R.rsi);
+        break;
+
+    case SYS_REMOVE:
+        f->R.rax = sys_remove((const char*)f->R.rdi);
+        break;
+
+    case SYS_OPEN:
+        f->R.rax = sys_open((const char*)f->R.rdi);
+        break;
+
+    case SYS_FILESIZE:
+        f->R.rax = sys_filesize((int)f->R.rdi);
+        break;
+
+    case SYS_READ:
+
+        break;
+
+    case SYS_WRITE:
+        break;
+
+    case SYS_SEEK:
+        break;
+    case SYS_TELL:
+        break;
+    case SYS_CLOSE:
+        break;
+    default:
+        thread_exit();
+        break;
+    }
+}
+
+void sys_halt(void) {
+    power_off();
+}
+
+void sys_exit(int status) {
+    struct thread* cur = thread_current();
+    cur->exit_status = status;
+    cur->process_exit = 1;
+    printf("%s: exit(%d)", curr->name, curr->exit_status);
+    thread_exit();
+}
+
+pid_t sys_fork(const char* thread_name) {
+    struct thread* t = thread_current();
+    process_fork(thread_name, NULL);
+}
+
+int sys_exec(const char* file) {
+    tid_t child_tid = process_create_initd(file);
+    struct thread* child_thread = get_child_process(child_tid);
+    sema_down(&child_thread->semaphore_load);
+    if (child_thread->process_load == 0)
+        return -1;
+    else
+        return child_tid;
+}
+
+int sys_wait(pid_t pid) {
+    return process_wait(pid);
+}
+
+bool sys_create(const char* file, unsigned initial_size) {
+    return filesys_create(file, initial_size);
+}
+
+bool sys_remove(const char* file) {
+    return filesys_remove(file);
+}
+
+int sys_open(const char* file) {
+    /* 파일을 open */
+    /* 해당 파일 객체에 파일 디스크립터 부여 */
+    /* 파일 디스크립터 리턴 */
+    /* 해당 파일이 존재하지 않으면 -1 리턴 */
+    return process_add_file(filesys_open(file));
+    //! process_add_file에서 fd가 없을때 NULL까지 반환시켜서 괜찮음
+}
+
+int sys_filesize(int fd) {
+    /* 파일 디스크립터를 이용하여 파일 객체 검색 */
+    /* 해당 파일의 길이를 리턴 */
+    /* 해당 파일이 존재하지 않으면 -1 리턴 */
+    struct file* f = process_get_file(fd);
+    if (f == NULL) return -1;
+    return file_length(f);
+}
+
+int read(int fd, void* buffer, unsigned size)
+{
+    /* 파일에 동시 접근이 일어날 수 있으므로 Lock 사용 */
+    /* 파일 디스크립터를 이용하여 파일 객체 검색 */
+    /* 파일 디스크립터가 0일 경우 키보드에 입력을 버퍼에 저장 후
+       버퍼의 저장한 크기를 리턴 (input_getc() 이용) */
+       /* 파일 디스크립터가 0이 아닐 경우 파일의 데이터를 크기만큼 저
+          장 후 읽은 바이트 수를 리턴 */
+
+
 }
