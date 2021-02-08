@@ -53,7 +53,7 @@ void check_address(void* addr) {
 void
 syscall_handler(struct intr_frame* f UNUSED) {
     // TODO: Your implementation goes here.
-    printf("system call!\n");
+    // printf("system call!\n");
 
     check_address(f->rsp);
     // int number = f->rsp; // number = f->R.rax 이렇게 하나 똑같은 거겟지?
@@ -131,7 +131,7 @@ void sys_exit(int status) {
     struct thread* cur = thread_current();
     cur->exit_status = status;
     cur->process_exit = 1;
-    printf("%s: exit(%d)", cur->name, cur->exit_status);
+    printf("%s: exit(%d)\n", cur->name, cur->exit_status);
     thread_exit();
 }
 

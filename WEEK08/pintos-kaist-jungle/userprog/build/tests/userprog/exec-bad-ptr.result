@@ -1,37 +1,17 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (exec-bad-ptr) begin
-  exec-bad-ptr: exit(-1)
-Differences in `diff -u' format:
-- (exec-bad-ptr) begin
-- exec-bad-ptr: exit(-1)
-+ Page fault at 0: not present error reading page in user context.
-+ exec-bad-ptr: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=400113
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 0000000000400113 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
-Acceptable output:
-  (exec-bad-ptr) begin
-  (exec-bad-ptr) end
-  exec-bad-ptr: exit(0)
-Differences in `diff -u' format:
-- (exec-bad-ptr) begin
-- (exec-bad-ptr) end
-- exec-bad-ptr: exit(0)
-+ Page fault at 0: not present error reading page in user context.
-+ exec-bad-ptr: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=400113
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 0000000000400113 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x8004216955 0x800421b520 0x800421b69f 0x8004208f5e 0x800420937c 0x8004216341 0x8004219f1b 0x800421bb26 0x800421b8da 0x800421b714 0x4000fd 0x40015b 0x400bfc
+Translation of call stack:
+0x0000008004216955: debug_panic (lib/kernel/debug.c:32)
+0x000000800421b520: kill (userprog/exception.c:103)
+0x000000800421b69f: page_fault (userprog/exception.c:159 (discriminator 12))
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x0000008004216341: strlcpy (lib/string.c:308)
+0x0000008004219f1b: process_create_initd (userprog/process.c:61)
+0x000000800421bb26: sys_exec (userprog/syscall.c:144)
+0x000000800421b8da: syscall_handler (userprog/syscall.c:79)
+0x000000800421b714: no_sti (userprog/syscall-entry.o:?)
+0x00000000004000fd: (unknown)
+0x000000000040015b: (unknown)
+0x0000000000400bfc: (unknown)

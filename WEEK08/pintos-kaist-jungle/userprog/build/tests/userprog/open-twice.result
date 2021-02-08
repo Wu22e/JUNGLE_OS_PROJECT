@@ -1,25 +1,49 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (open-twice) begin
-  (open-twice) open "sample.txt" once
-  (open-twice) open "sample.txt" again
-  (open-twice) end
-  open-twice: exit(0)
-Differences in `diff -u' format:
-- (open-twice) begin
-- (open-twice) open "sample.txt" once
-- (open-twice) open "sample.txt" again
-- (open-twice) end
-- open-twice: exit(0)
-+ Page fault at 0: not present error reading page in user context.
-+ open-twice: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=40020a
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 000000000040020a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
+Kernel panic in run: PANIC at ../../threads/thread.c:483 in thread_current(): assertion `is_thread(t)' failed.
+Call stack: 0x8004216955 0x800420760f 0x800420a709 0x8004219b74 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004206795 0x80042068c0 0x800420617a
+Translation of call stack:
+0x0000008004216955: debug_panic (lib/kernel/debug.c:32)
+0x000000800420760f: thread_current (threads/thread.c:484)
+0x000000800420a709: lock_held_by_current_thread (threads/synch.c:268)
+0x0000008004219b74: acquire_console (lib/kernel/console.c:87)
+0x0000008004219c92: vprintf (lib/kernel/console.c:122)
+0x0000008004213e58: printf (lib/stdio.c:80)
+0x0000008004209121: intr_dump_frame (threads/interrupt.c:387)
+0x000000800421b4eb: kill (userprog/exception.c:97)
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x0000008004217146: list_push_back (lib/kernel/list.c:205)
+0x000000800420a47d: lock_acquire (threads/synch.c:210)
+0x0000008004219bab: acquire_console (lib/kernel/console.c:92)
+0x0000008004219c92: vprintf (lib/kernel/console.c:122)
+0x0000008004213e58: printf (lib/stdio.c:80)
+0x0000008004209121: intr_dump_frame (threads/interrupt.c:387)
+0x000000800421b4eb: kill (userprog/exception.c:97)
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x0000008004217146: list_push_back (lib/kernel/list.c:205)
+0x000000800420a47d: lock_acquire (threads/synch.c:210)
+0x0000008004219bab: acquire_console (lib/kernel/console.c:92)
+0x0000008004219c92: vprintf (lib/kernel/console.c:122)
+0x0000008004213e58: printf (lib/stdio.c:80)
+0x0000008004209121: intr_dump_frame (threads/interrupt.c:387)
+0x000000800421b4eb: kill (userprog/exception.c:97)
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x0000008004217146: list_push_back (lib/kernel/list.c:205)
+0x000000800420a47d: lock_acquire (threads/synch.c:210)
+0x0000008004219bab: acquire_console (lib/kernel/console.c:92)
+0x0000008004219c92: vprintf (lib/kernel/console.c:122)
+0x0000008004213e58: printf (lib/stdio.c:80)
+0x0000008004209121: intr_dump_frame (threads/interrupt.c:387)
+0x000000800421b4eb: kill (userprog/exception.c:97)
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x0000008004217146: list_push_back (lib/kernel/list.c:205)
+0x000000800420a47d: lock_acquire (threads/synch.c:210)
+0x0000008004219bab: acquire_console (lib/kernel/console.c:92)
+0x0000008004219c92: vprintf (lib/kernel/console.c:122)
+0x0000008004213e58: printf (lib/stdio.c:80)
+0x0000008004206795: run_task (threads/init.c:253)
+0x00000080042068c0: run_actions (threads/init.c:297)
+0x000000800420617a: main (threads/init.c:125)

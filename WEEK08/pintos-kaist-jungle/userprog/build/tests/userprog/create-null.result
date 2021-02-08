@@ -1,19 +1,13 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (create-null) begin
-  create-null: exit(-1)
-Differences in `diff -u' format:
-- (create-null) begin
-- create-null: exit(-1)
-+ Page fault at 0: not present error reading page in user context.
-+ create-null: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=400138
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 0000000000400138 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
+Kernel panic in run: PANIC at ../../filesys/directory.c:133 in dir_add(): assertion `name != NULL' failed.
+Call stack: 0x8004216955 0x800421d99a 0x800421c191 0x800421bbc2 0x800421b933 0x800421b714 0x400102 0x400180 0x400c21
+Translation of call stack:
+0x0000008004216955: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d99a: dir_add (filesys/directory.c:136)
+0x000000800421c191: filesys_create (filesys/filesys.c:67 (discriminator 3))
+0x000000800421bbc2: sys_create (userprog/syscall.c:158)
+0x000000800421b933: syscall_handler (userprog/syscall.c:88)
+0x000000800421b714: no_sti (userprog/syscall-entry.o:?)
+0x0000000000400102: (unknown)
+0x0000000000400180: (unknown)
+0x0000000000400c21: (unknown)

@@ -13,23 +13,20 @@ Boot complete.
 Putting 'close-twice' into the file system...
 Putting 'sample.txt' into the file system...
 Executing 'close-twice':
-Page fault at 0: not present error reading page in user context.
-close-twice: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=4001b3
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-rip 00000000004001b3 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0023 ss: 001b
-Execution of 'close-twice' complete.
-Timer: 60 ticks
-Thread: 30 idle ticks, 27 kernel ticks, 3 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 107 reads, 248 writes
-hd1:0: 105 reads, 0 writes
-Console: 1501 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+(close-twice) begin
+(close-twice) open "sample.txt"
+(close-twice) close "sample.txt"
+(close-twice) close "sample.txt" again
+(close-twice) end
+close-twice: exit(0)
+Page fault at 0x4239044: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=800421d3b9
+ cr2=0000000004239044 error=               0
+rax 0000000004239038 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000018
+rsp 000000800423de80 rbp 000000800423de90 rsi 000000800423d500 rdi 0000000004239038
+Kernel PANIC at ../../threads/thread.c:483 in thread_current(): assertion `is_thread(t)' failed.
+Call stack: 0x8004216955 0x800420760f 0x800420a709 0x8004219b74 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004209121 0x800421b4eb 0x8004208f5e 0x800420937c 0x8004217146 0x800420a47d 0x8004219bab 0x8004219c92 0x8004213e58 0x8004206795 0x80042068c0 0x800420617a.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Kernel PANIC recursion at ../../threads/thread.c:483 in thread_current().

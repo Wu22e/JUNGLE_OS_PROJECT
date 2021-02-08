@@ -1,35 +1,15 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (syn-remove) begin
-  (syn-remove) create "deleteme"
-  (syn-remove) open "deleteme"
-  (syn-remove) remove "deleteme"
-  (syn-remove) write "deleteme"
-  (syn-remove) seek "deleteme" to 0
-  (syn-remove) read "deleteme"
-  (syn-remove) close "deleteme"
-  (syn-remove) end
-Differences in `diff -u' format:
-- (syn-remove) begin
-- (syn-remove) create "deleteme"
-- (syn-remove) open "deleteme"
-- (syn-remove) remove "deleteme"
-- (syn-remove) write "deleteme"
-- (syn-remove) seek "deleteme" to 0
-- (syn-remove) read "deleteme"
-- (syn-remove) close "deleteme"
-- (syn-remove) end
-+ Page fault at 0: not present error reading page in user context.
-+ syn-remove: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=401047
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 0000000000401047 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
-
-(Process exit codes are excluded for matching purposes.)
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x8004216955 0x800421b520 0x800421b69f 0x8004208f5e 0x800420937c 0x800421bda9 0x800421ba20 0x800421b714 0x40027c 0x40108f 0x4010d8
+Translation of call stack:
+0x0000008004216955: debug_panic (lib/kernel/debug.c:32)
+0x000000800421b520: kill (userprog/exception.c:103)
+0x000000800421b69f: page_fault (userprog/exception.c:159 (discriminator 12))
+0x0000008004208f5e: intr_handler (threads/interrupt.c:352)
+0x000000800420937c: intr_entry (threads/intr-stubs.o:?)
+0x000000800421bda9: sys_write (userprog/syscall.c:223)
+0x000000800421ba20: syscall_handler (userprog/syscall.c:108)
+0x000000800421b714: no_sti (userprog/syscall-entry.o:?)
+0x000000000040027c: (unknown)
+0x000000000040108f: (unknown)
+0x00000000004010d8: (unknown)

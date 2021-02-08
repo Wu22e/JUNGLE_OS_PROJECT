@@ -30,7 +30,7 @@ static void initd (void *f_name);
 static void __do_fork (void *);
 
 //! 유저 스택에 파싱된 토큰을 저장하는 함수
-void argument_stack(char** parse, int count, void** esp);
+void* argument_stack(char** parse, int count, void** esp);
 
 
 /* General process initializer for initd and other process. */
@@ -220,8 +220,8 @@ process_exec(void* f_name) {
 	}
 
 	//! 추가:
-	argument_stack(parse, i, &(_if.rsp));
-
+	_if.R.rsi = argument_stack(parse, i, &(_if.rsp));
+	_if.R.rdi = i;
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - _if.rsp, true);
 	//! USER_STACK 공부잘하기
 	//! - - - - - -
@@ -234,7 +234,7 @@ process_exec(void* f_name) {
 
 
 //! 추가
-void
+void*
 argument_stack(char** parse, int argc, void** rsp) {
 	ASSERT(argc >= 0);
 
@@ -261,18 +261,20 @@ argument_stack(char** parse, int argc, void** rsp) {
 		*rsp -= 8;
 		*((void**)*rsp) = addr[i];
 	}
-
-	//! setting **argv (addr of stack, rsp)
-	*rsp -= 8;
-	*((void**)*rsp) = (*rsp + 8);
-
-	//! setting argc
-	*rsp -= 8;
-	*((int*)*rsp) = argc;
-
 	//! setting fake
 	*rsp -= 8;
 	*((int*)*rsp) = 0;
+
+	return ((void *)(*rsp + 8));
+	// //! setting **argv (addr of stack, rsp)
+	// *rsp -= 8;
+	// *((void**)*rsp) = (*rsp + 8);
+
+	// //! setting argc
+	// *rsp -= 8;
+	// *((int*)*rsp) = argc;
+
+	
 }
 
 /* Waits for thread TID to die and returns its exit status.  If
@@ -326,6 +328,7 @@ process_exit(void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
+	
 	// printf("%s: exit(%d)\n", curr->name, curr->exit_status);
 
 	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)

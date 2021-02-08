@@ -12,23 +12,25 @@ Formatting file system...done.
 Boot complete.
 Putting 'exec-missing' into the file system...
 Executing 'exec-missing':
-Page fault at 0: not present error reading page in user context.
-exec-missing: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=400135
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-rip 0000000000400135 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0023 ss: 001b
-Execution of 'exec-missing' complete.
+(exec-missing) begin
+Page fault at 0x4245080: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004209fb7
+ cr2=0000000004245080 error=               0
+rax 0000000004245080 rbx 0000000000000000 rcx 0000000000000000 rdx 000000800421a89e
+rsp 000000800423dec0 rbp 000000800423dee0 rsi 0000008004245500 rdi 0000000004245080
+rip 0000008004209fb7 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000212 r12 000000800421b81e r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000002
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x8004216955 0x800421b520 0x800421b69f 0x8004208f5e 0x800420937c 0x800421bb5c 0x800421b8da 0x800421b714 0x400102 0x40017d 0x400c1e.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
 Timer: 59 ticks
 Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 1446 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1772 characters output
+Key

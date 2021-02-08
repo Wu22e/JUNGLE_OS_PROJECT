@@ -12,23 +12,17 @@ Formatting file system...done.
 Boot complete.
 Putting 'create-bound' into the file system...
 Executing 'create-bound':
-Page fault at 0: not present error reading page in user context.
-create-bound: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=40021a
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-rip 000000000040021a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0023 ss: 001b
+(create-bound) begin
+(create-bound) create("quux.dat"): 1
+(create-bound) end
+create-bound: exit(0)
 Execution of 'create-bound' complete.
 Timer: 59 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
+Thread: 30 idle ticks, 27 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 80 reads, 238 writes
+hd0:1: 102 reads, 250 writes
 hd1:0: 105 reads, 0 writes
-Console: 1446 characters output
+Console: 902 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

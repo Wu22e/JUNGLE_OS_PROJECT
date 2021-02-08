@@ -12,23 +12,16 @@ Formatting file system...done.
 Boot complete.
 Putting 'fork-once' into the file system...
 Executing 'fork-once':
-Page fault at 0: not present error reading page in user context.
-fork-once: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=400186
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-rip 0000000000400186 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0023 ss: 001b
-Execution of 'fork-once' complete.
-Timer: 59 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
+(fork-once) begin
+Kernel PANIC at ../../threads/mmu.c:215 in pml4_get_page(): assertion `is_user_vaddr (uaddr)' failed.
+Call stack: 0x8004216955 0x800420ceaf 0x800421a0b6 0x800420c939 0x800420c9eb 0x800420ca90 0x800420cb28 0x800421a199 0x8004207977.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 57 ticks
+Thread: 30 idle ticks, 26 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 1428 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1156 characters output
+Key

@@ -12,27 +12,23 @@ Formatting file system...done.
 Boot complete.
 Putting 'args-multiple' into the file system...
 Executing 'args-multiple some arguments for you!':
-system call!
 (args) begin
-system call!
-(args) argc = 0
-Page fault at 0: not present error reading page in user context.
-args-multiple: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 000000000040384a rdx 0000000000000000
-rsp 000000004747ff48 rbp 000000004747ff68 rsi 0000000000604d40 rdi 0000000000000001
-rip 0000000000400194 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000246
-es: 001b ds: 001b cs: 0023 ss: 001b
+(args) argc = 5
+(args) argv[0] = 'args-multiple'
+(args) argv[1] = 'some'
+(args) argv[2] = 'arguments'
+(args) argv[3] = 'for'
+(args) argv[4] = 'you!'
+(args) argv[5] = null
+(args) end
+args-multiple: exit(0)
 Execution of 'args-multiple' complete.
-Timer: 60 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 4 user ticks
+Timer: 59 ticks
+Thread: 30 idle ticks, 27 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1557 characters output
+Console: 1075 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

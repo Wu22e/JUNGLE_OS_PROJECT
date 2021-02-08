@@ -12,23 +12,16 @@ Formatting file system...done.
 Boot complete.
 Putting 'create-null' into the file system...
 Executing 'create-null':
-Page fault at 0: not present error reading page in user context.
-create-null: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=400138
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-rip 0000000000400138 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0023 ss: 001b
-Execution of 'create-null' complete.
-Timer: 59 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
+(create-null) begin
+Kernel PANIC at ../../filesys/directory.c:133 in dir_add(): assertion `name != NULL' failed.
+Call stack: 0x8004216955 0x800421d99a 0x800421c191 0x800421bbc2 0x800421b933 0x800421b714 0x400102 0x400180 0x400c21.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 57 ticks
+Thread: 30 idle ticks, 26 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 80 reads, 234 writes
+hd0:1: 83 reads, 245 writes
 hd1:0: 103 reads, 0 writes
-Console: 1440 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1145 characters output
+Key

@@ -12,27 +12,41 @@ Formatting file system...done.
 Boot complete.
 Putting 'args-many' into the file system...
 Executing 'args-many a b c d e f g h i j k l m n o p q r s t u v':
-system call!
 (args) begin
-system call!
-(args) argc = 0
-Page fault at 0: not present error reading page in user context.
-args-many: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
- cr2=0000000000000000 error=               4
-rax 0000000000000000 rbx 0000000000000000 rcx 000000000040384a rdx 0000000000000000
-rsp 000000004747fea8 rbp 000000004747fec8 rsi 0000000000604d40 rdi 0000000000000001
-rip 0000000000400194 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000246
-es: 001b ds: 001b cs: 0023 ss: 001b
+(args) argc = 23
+(args) argv[0] = 'args-many'
+(args) argv[1] = 'a'
+(args) argv[2] = 'b'
+(args) argv[3] = 'c'
+(args) argv[4] = 'd'
+(args) argv[5] = 'e'
+(args) argv[6] = 'f'
+(args) argv[7] = 'g'
+(args) argv[8] = 'h'
+(args) argv[9] = 'i'
+(args) argv[10] = 'j'
+(args) argv[11] = 'k'
+(args) argv[12] = 'l'
+(args) argv[13] = 'm'
+(args) argv[14] = 'n'
+(args) argv[15] = 'o'
+(args) argv[16] = 'p'
+(args) argv[17] = 'q'
+(args) argv[18] = 'r'
+(args) argv[19] = 's'
+(args) argv[20] = 't'
+(args) argv[21] = 'u'
+(args) argv[22] = 'v'
+(args) argv[23] = null
+(args) end
+args-many: exit(0)
 Execution of 'args-many' complete.
-Timer: 60 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 4 user ticks
+Timer: 61 ticks
+Thread: 30 idle ticks, 27 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1573 characters output
+Console: 1464 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

@@ -1,31 +1,13 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (fork-close) begin
-  (fork-close) open "sample.txt"
-  (fork-close) child run
-  (fork-close) end
-  child: exit(0)
-  (fork-close) Parent success
-  (fork-close) end
-  fork-close: exit(0)
-Differences in `diff -u' format:
-- (fork-close) begin
-- (fork-close) open "sample.txt"
-- (fork-close) child run
-- (fork-close) end
-- child: exit(0)
-- (fork-close) Parent success
-- (fork-close) end
-- fork-close: exit(0)
-+ Page fault at 0: not present error reading page in user context.
-+ fork-close: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at rip=40039e
-+  cr2=0000000000000000 error=               4
-+ rax 0000000000000000 rbx 0000000000000000 rcx 0000000000000000 rdx 0000000000000000
-+ rsp 000000004747ff90 rbp 000000004747ffa0 rsi 0000000000000000 rdi 0000000000000000
-+ rip 000000000040039e r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-+ r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
-+ r15 0000000000000000 rflags 00000206
-+ es: 001b ds: 001b cs: 0023 ss: 001b
+Kernel panic in run: PANIC at ../../threads/mmu.c:215 in pml4_get_page(): assertion `is_user_vaddr (uaddr)' failed.
+Call stack: 0x8004216955 0x800420ceaf 0x800421a0b6 0x800420c939 0x800420c9eb 0x800420ca90 0x800420cb28 0x800421a199 0x8004207977
+Translation of call stack:
+0x0000008004216955: debug_panic (lib/kernel/debug.c:32)
+0x000000800420ceaf: pml4_get_page (threads/mmu.c:217)
+0x000000800421a0b6: duplicate_pte (userprog/process.c:107)
+0x000000800420c939: pt_for_each (threads/mmu.c:113)
+0x000000800420c9eb: pgdir_for_each (threads/mmu.c:126)
+0x000000800420ca90: pdp_for_each (threads/mmu.c:139)
+0x000000800420cb28: pml4_for_each (threads/mmu.c:152)
+0x000000800421a199: __do_fork (userprog/process.c:152)
+0x0000008004207977: kernel_thread (threads/thread.c:629)
