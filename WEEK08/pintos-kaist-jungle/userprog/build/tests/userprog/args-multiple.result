@@ -13,7 +13,8 @@ Acceptable output:
   (args) end
   args-multiple: exit(0)
 Differences in `diff -u' format:
-- (args) begin
++ system call!
+  (args) begin
 - (args) argc = 5
 - (args) argv[0] = 'args-multiple'
 - (args) argv[1] = 'some'
@@ -22,8 +23,9 @@ Differences in `diff -u' format:
 - (args) argv[4] = 'you!'
 - (args) argv[5] = null
 - (args) end
+- args-multiple: exit(0)
 + system call!
-+ system call!
++ (args) argc = 0
 + Page fault at 0: not present error reading page in user context.
 + args-multiple: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 + Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
@@ -34,4 +36,3 @@ Differences in `diff -u' format:
 + r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 + r15 0000000000000000 rflags 00000246
 + es: 001b ds: 001b cs: 0023 ss: 001b
-  args-multiple: exit(0)

@@ -13,7 +13,9 @@ Boot complete.
 Putting 'args-dbl-space' into the file system...
 Executing 'args-dbl-space two  spaces!':
 system call!
+(args) begin
 system call!
+(args) argc = 0
 Page fault at 0: not present error reading page in user context.
 args-dbl-space: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
@@ -24,14 +26,13 @@ rip 0000000000400194 r8 0000000000000000  r9 0000000000000000 r10 00000000000000
 r11 0000000000000206 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000246
 es: 001b ds: 001b cs: 0023 ss: 001b
-args-dbl-space: exit(0)
 Execution of 'args-dbl-space' complete.
 Timer: 60 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 4 user ticks
+Thread: 30 idle ticks, 27 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1536 characters output
+Console: 1541 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

@@ -26,7 +26,7 @@ bool sys_remove(const char* file);
 int sys_open(const char* file);
 int sys_filesize(int fd);
 int sys_read(int fd, void* buffer, unsigned size);
-int write(int fd, void *buffer, unsigned size);
+int sys_write(int fd, void *buffer, unsigned size);
 
 #endif /* userprog/syscall.h */
 

@@ -22,14 +22,13 @@ rip 0000000000400110 r8 0000000000000000  r9 0000000000000000 r10 00000000000000
 r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000202
 es: 001b ds: 001b cs: 0023 ss: 001b
-exit: exit(0)
 Execution of 'exit' complete.
 Timer: 59 ticks
 Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1412 characters output
+Console: 1398 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

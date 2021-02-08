@@ -10,6 +10,7 @@ Differences in `diff -u' format:
 - (create-normal) begin
 - (create-normal) create quux.dat
 - (create-normal) end
+- create-normal: exit(0)
 + Page fault at 0: not present error reading page in user context.
 + create-normal: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 + Interrupt 0x0e (#PF Page-Fault Exception) at rip=40015a
@@ -20,4 +21,3 @@ Differences in `diff -u' format:
 + r11 0000000000000000 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 + r15 0000000000000000 rflags 00000206
 + es: 001b ds: 001b cs: 0023 ss: 001b
-  create-normal: exit(0)

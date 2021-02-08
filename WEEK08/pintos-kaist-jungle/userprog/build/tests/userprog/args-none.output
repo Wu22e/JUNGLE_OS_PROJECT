@@ -13,7 +13,9 @@ Boot complete.
 Putting 'args-none' into the file system...
 Executing 'args-none':
 system call!
+(args) begin
 system call!
+(args) argc = 0
 Page fault at 0: not present error reading page in user context.
 args-none: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
@@ -24,14 +26,13 @@ rip 0000000000400194 r8 0000000000000000  r9 0000000000000000 r10 00000000000000
 r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000246
 es: 001b ds: 001b cs: 0023 ss: 001b
-args-none: exit(0)
 Execution of 'args-none' complete.
 Timer: 60 ticks
-Thread: 30 idle ticks, 27 kernel ticks, 3 user ticks
+Thread: 30 idle ticks, 26 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1473 characters output
+Console: 1483 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

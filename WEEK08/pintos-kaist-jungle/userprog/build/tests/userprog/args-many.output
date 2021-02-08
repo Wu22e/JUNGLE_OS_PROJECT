@@ -4,7 +4,7 @@ Kernel command line: -q -f put args-many run 'args-many a b c d e f g h i j k l 
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  130,867,200 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 297 sector (148 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 102 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -13,7 +13,9 @@ Boot complete.
 Putting 'args-many' into the file system...
 Executing 'args-many a b c d e f g h i j k l m n o p q r s t u v':
 system call!
+(args) begin
 system call!
+(args) argc = 0
 Page fault at 0: not present error reading page in user context.
 args-many: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
@@ -24,14 +26,13 @@ rip 0000000000400194 r8 0000000000000000  r9 0000000000000000 r10 00000000000000
 r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 r15 0000000000000000 rflags 00000246
 es: 001b ds: 001b cs: 0023 ss: 001b
-args-many: exit(0)
 Execution of 'args-many' complete.
-Timer: 61 ticks
-Thread: 30 idle ticks, 27 kernel ticks, 4 user ticks
+Timer: 60 ticks
+Thread: 30 idle ticks, 26 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 232 writes
 hd1:0: 102 reads, 0 writes
-Console: 1563 characters output
+Console: 1573 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

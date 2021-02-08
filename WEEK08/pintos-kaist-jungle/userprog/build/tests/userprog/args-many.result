@@ -31,7 +31,8 @@ Acceptable output:
   (args) end
   args-many: exit(0)
 Differences in `diff -u' format:
-- (args) begin
++ system call!
+  (args) begin
 - (args) argc = 23
 - (args) argv[0] = 'args-many'
 - (args) argv[1] = 'a'
@@ -58,8 +59,9 @@ Differences in `diff -u' format:
 - (args) argv[22] = 'v'
 - (args) argv[23] = null
 - (args) end
+- args-many: exit(0)
 + system call!
-+ system call!
++ (args) argc = 0
 + Page fault at 0: not present error reading page in user context.
 + args-many: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 + Interrupt 0x0e (#PF Page-Fault Exception) at rip=400194
@@ -70,4 +72,3 @@ Differences in `diff -u' format:
 + r11 0000000000000202 r12 0000000000000000 r13 0000000000000000 r14 0000000000000000
 + r15 0000000000000000 rflags 00000246
 + es: 001b ds: 001b cs: 0023 ss: 001b
-  args-many: exit(0)

@@ -97,15 +97,15 @@ syscall_handler(struct intr_frame* f UNUSED) {
         break;
 
     case SYS_FILESIZE:
-
         f->R.rax = sys_filesize((int)f->R.rdi);
         break;
 
     case SYS_READ:
-
+        f->R.rax = sys_read((int)f->R.rdi,(void*)f->R.rsi,(unsigned)f->R.rdx);
         break;
 
     case SYS_WRITE:
+        f->R.rax = sys_write((int)f->R.rdi,(void*)f->R.rsi,(unsigned)f->R.rdx);
         break;
 
     case SYS_SEEK:
@@ -131,7 +131,7 @@ void sys_exit(int status) {
     struct thread* cur = thread_current();
     cur->exit_status = status;
     cur->process_exit = 1;
-    // printf("%s: exit(%d)", cur->name, cur->exit_status);
+    printf("%s: exit(%d)", cur->name, cur->exit_status);
     thread_exit();
 }
 
@@ -203,7 +203,7 @@ int sys_read(int fd, void* buffer, unsigned size)
     return bytes;
 }
 
-int write(int fd, void *buffer, unsigned size)
+int sys_write(int fd, void *buffer, unsigned size)
 {
     /* 파일에 동시 접근이 일어날 수 있으므로 Lock 사용 */
     /* 파일 디스크립터를 이용하여 파일 객체 검색 */
