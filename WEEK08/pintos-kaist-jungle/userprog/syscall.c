@@ -26,6 +26,7 @@ void syscall_handler(struct intr_frame*);
 
 void
 syscall_init(void) {
+    lock_init(&filesys_lock);
     write_msr(MSR_STAR, ((uint64_t)SEL_UCSEG - 0x10) << 48 |
         ((uint64_t)SEL_KCSEG) << 32);
     write_msr(MSR_LSTAR, (uint64_t)syscall_entry);
@@ -96,6 +97,7 @@ syscall_handler(struct intr_frame* f UNUSED) {
         break;
 
     case SYS_FILESIZE:
+
         f->R.rax = sys_filesize((int)f->R.rdi);
         break;
 
@@ -108,10 +110,13 @@ syscall_handler(struct intr_frame* f UNUSED) {
 
     case SYS_SEEK:
         break;
+
     case SYS_TELL:
         break;
+
     case SYS_CLOSE:
         break;
+
     default:
         thread_exit();
         break;
@@ -126,7 +131,7 @@ void sys_exit(int status) {
     struct thread* cur = thread_current();
     cur->exit_status = status;
     cur->process_exit = 1;
-    printf("%s: exit(%d)", cur->name, cur->exit_status);
+    // printf("%s: exit(%d)", cur->name, cur->exit_status);
     thread_exit();
 }
 
@@ -175,14 +180,48 @@ int sys_filesize(int fd) {
     return file_length(f);
 }
 
-int read(int fd, void* buffer, unsigned size)
+int sys_read(int fd, void* buffer, unsigned size)
 {
     /* 파일에 동시 접근이 일어날 수 있으므로 Lock 사용 */
     /* 파일 디스크립터를 이용하여 파일 객체 검색 */
     /* 파일 디스크립터가 0일 경우 키보드에 입력을 버퍼에 저장 후
        버퍼의 저장한 크기를 리턴 (input_getc() 이용) */
-       /* 파일 디스크립터가 0이 아닐 경우 파일의 데이터를 크기만큼 저
-          장 후 읽은 바이트 수를 리턴 */
+    /* 파일 디스크립터가 0이 아닐 경우 파일의 데이터를 크기만큼 저장 후 
+       읽은 바이트 수를 리턴 */
 
+    struct file *f;
+    lock_acquire(&filesys_lock);
+    int bytes;
+    f = process_get_file(fd);
+    if(fd == 0){
+        bytes = input_getc();
+    }
+    else{
+        bytes = file_read(f,buffer,size); 
+    }
+    lock_release(&filesys_lock);
+    return bytes;
+}
 
+int write(int fd, void *buffer, unsigned size)
+{
+    /* 파일에 동시 접근이 일어날 수 있으므로 Lock 사용 */
+    /* 파일 디스크립터를 이용하여 파일 객체 검색 */
+    /* 파일 디스크립터가 1일 경우 버퍼에 저장된 값을 화면에 출력
+       후 버퍼의 크기 리턴 (putbuf() 이용) */
+    /* 파일 디스크립터가 1이 아닐 경우 버퍼에 저장된 데이터를 크기
+       만큼 파일에 기록후 기록한 바이트 수를 리턴 */
+    struct file *f;
+    lock_acquire(&filesys_lock);
+    int bytes;
+    f = process_get_file(fd);
+    if(fd == 1){
+        putbuf((const char*)buffer, size);
+        bytes = size;
+    }
+    else{
+        bytes = file_write(f,buffer,size); 
+    }
+    lock_release(&filesys_lock);
+    return bytes;
 }

@@ -408,14 +408,12 @@ thread_create(const char* name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
-	/* fd 값 초기화(0,1은 표준 입력,출력) */
-	/* File Descriptor 테이블에 메모리 할당 */
-	t->next_fd = 2;
 
-	/* Add to run queue. */
-	thread_unblock(t); // t는 자식
 
-	//! 추가 : 생성된 스레드의 우선순위가 현재 실행중인 스레드의 우선순위보다 높다면 CPU를 양보한다.
+		/* Add to run queue. */
+		thread_unblock(t); // t는 자식
+
+		//! 추가 : 생성된 스레드의 우선순위가 현재 실행중인 스레드의 우선순위보다 높다면 CPU를 양보한다.
 	if (t->priority > thread_current()->priority) {
 		thread_yield();
 	}

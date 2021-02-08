@@ -8,8 +8,8 @@
 // #include "threads/interrupt.h"
 /* Process identifier. */
 typedef int pid_t;
-void syscall_init(void);
 //!  - - - - - - - -
+struct lock filesys_lock;
 
 void syscall_init(void);
 /* 새로 구현한 함수 */
@@ -26,6 +26,7 @@ bool sys_remove(const char* file);
 int sys_open(const char* file);
 int sys_filesize(int fd);
 int sys_read(int fd, void* buffer, unsigned size);
+int write(int fd, void *buffer, unsigned size);
 
 #endif /* userprog/syscall.h */
 
