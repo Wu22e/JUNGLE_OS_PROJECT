@@ -39,7 +39,7 @@ syscall_init(void) {
 
 void check_address(void* addr) {
     if (!is_user_vaddr(addr))
-        exit(-1);
+        sys_exit(-1);
 }
 
 // void get_argument(void* rsp, int* arg, int count) {
@@ -126,7 +126,7 @@ void sys_exit(int status) {
     struct thread* cur = thread_current();
     cur->exit_status = status;
     cur->process_exit = 1;
-    printf("%s: exit(%d)", curr->name, curr->exit_status);
+    printf("%s: exit(%d)", cur->name, cur->exit_status);
     thread_exit();
 }
 
