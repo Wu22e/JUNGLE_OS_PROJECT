@@ -339,7 +339,7 @@ process_exit(void) {
 	/* 프로세스에 열린 모든 파일을 닫음 */
 	for (int i = 2; i < curr->next_fd; i++){
 		if(curr->fd_table[i] != NULL){
-			process_close_file(curr->fd_table[i]);
+			process_close_file(i);
 		}
 		else {}
 	}
@@ -349,6 +349,7 @@ process_exit(void) {
 
 
 	process_cleanup();
+
 	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
 }
 
@@ -416,9 +417,10 @@ struct file* process_get_file(int fd)
 
 	//! fd<=1 을 뺴준이유는 stdin stdout이 제대로작동하는데도
 	//! 여기서 걸러지면 문제가생길까봐 일단 주석처리해둠
-	// if (fd <= 1 || fd >= curr->next_fd) return NULL;
-	if (fd >= curr->next_fd) return NULL;
+	if (fd <= 1 || fd >= curr->next_fd) return NULL;
+	// if (fd >= curr->next_fd) return NULL;
 	else return curr->fd_table[fd];
+
 }
 
 //! 추가한 함수
@@ -429,10 +431,10 @@ void process_close_file(int fd)
 	struct thread* curr = thread_current();
 	//! fd<=1 을 뺴준이유는 stdin stdout이 제대로작동하는데도
 	//! 여기서 걸러지면 문제가생길까봐 일단 주석처리해둠
-	// if (fd <= 1 || fd >= curr->next_fd) return;
-	if (fd >= curr->next_fd) return;
+	if (fd <= 1 || fd >= curr->next_fd) return;
+	// if (fd >= curr->next_fd) return;
 
-	file_close(curr->fd_table[fd]);
+	// file_close(curr->fd_table[fd]);
 	curr->fd_table[fd] = NULL;
 }
 

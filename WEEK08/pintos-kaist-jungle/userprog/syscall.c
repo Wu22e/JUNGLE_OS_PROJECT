@@ -198,14 +198,17 @@ int sys_read(int fd, void* buffer, unsigned size)
     lock_acquire(&filesys_lock);
     int bytes = size;
     f = process_get_file(fd);
-    if(fd == 0){
-        // while(bytes){
-            bytes = input_getc();
-        // }
+    if(f != NULL){
+        if(fd == 0){
+            // while(bytes){
+                bytes = input_getc();
+            // }
+        }
+        else{
+            bytes = file_read(f,buffer,size); 
+        }
     }
-    else{
-        bytes = file_read(f,buffer,size); 
-    }
+
     lock_release(&filesys_lock);
     return bytes;
 }
@@ -231,4 +234,29 @@ int sys_write(int fd, void *buffer, unsigned size)
     }
     lock_release(&filesys_lock);
     return bytes;
+}
+
+void seek (int fd, unsigned position)
+{
+    /* 파일 디스크립터를 이용하여 파일 객체 검색 */
+    /* 해당 열린 파일의 위치(offset)를 position만큼 이동 */
+    struct file *f =process_get_file(fd);
+    file_seek(f, position);
+}
+
+unsigned tell (int fd)
+{
+    /* 파일 디스크립터를 이용하여 파일 객체 검색 */
+    /* 해당 열린 파일의 위치를 반환 */
+    struct file *f =process_get_file(fd);
+    return file_tell(f);
+
+}
+
+
+void close (int fd)
+{
+    /* 해당 파일 디스크립터에 해당하는 파일을 닫음 */
+    /* 파일 디스크립터 엔트리 초기화 */
+    process_close_file(fd);
 }
