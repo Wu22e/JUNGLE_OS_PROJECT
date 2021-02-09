@@ -344,10 +344,6 @@ process_exit(void) {
 		else {}
 	}
 
-		
-	
-
-
 	process_cleanup();
 
 	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
@@ -413,6 +409,7 @@ struct file* process_get_file(int fd)
 	/* 파일 디스크립터에 해당하는 파일 객체를 리턴 */
 	/* 없을 시 NULL 리턴 */
 	struct thread* curr = thread_current();
+	// struct file* f = curr->fd_table[fd];
 	// if(curr->fd_table[fd]) return curr->fd_table[fd];
 
 	//! fd<=1 을 뺴준이유는 stdin stdout이 제대로작동하는데도
@@ -420,7 +417,6 @@ struct file* process_get_file(int fd)
 	if (fd <= 1 || fd >= curr->next_fd) return NULL;
 	// if (fd >= curr->next_fd) return NULL;
 	else return curr->fd_table[fd];
-
 }
 
 //! 추가한 함수

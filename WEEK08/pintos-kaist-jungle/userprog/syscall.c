@@ -7,7 +7,13 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
+
+//! read / write 를 위해 헤더 추가
+#include "threads/synch.h"
+#include "filesys/file.h"
+#include "filesys/filesys.h"
 #include "userprog/process.h"
+
 
 void syscall_entry(void);
 void syscall_handler(struct intr_frame*);
@@ -110,12 +116,15 @@ syscall_handler(struct intr_frame* f UNUSED) {
         break;
 
     case SYS_SEEK:
+        sys_seek((int)f->R.rdi, (unsigned)f->R.rsi);
         break;
 
     case SYS_TELL:
+        f->R.rax = sys_tell((int)f->R.rdi);
         break;
 
     case SYS_CLOSE:
+        sys_close((int)f->R.rdi);
         break;
 
     default:
@@ -171,9 +180,8 @@ int sys_open(const char* file) {
     /* 해당 파일이 존재하지 않으면 -1 리턴 */
     if (file == NULL) { sys_exit(-1); }
     int temp = process_add_file(filesys_open(file));
-    // printf("------------>temp is = %d<--------------\n",temp);
     return temp;
-    //! process_add_file에서 fd가 없을때 NULL까지 반환시켜서 괜찮음
+    // ! process_add_file에서 fd가 없을때 NULL까지 반환시켜서 괜찮음
 }
 
 int sys_filesize(int fd) {
@@ -193,25 +201,27 @@ int sys_read(int fd, void* buffer, unsigned size)
        버퍼의 저장한 크기를 리턴 (input_getc() 이용) */
     /* 파일 디스크립터가 0이 아닐 경우 파일의 데이터를 크기만큼 저장 후 
        읽은 바이트 수를 리턴 */
-
+    // check_address(buffer);
     struct file *f;
-    lock_acquire(&filesys_lock);
     int bytes = size;
+    lock_acquire(&filesys_lock);
     f = process_get_file(fd);
     if(f != NULL){
         if(fd == 0){
-            // while(bytes){
-                bytes = input_getc();
-            // }
+            bytes = input_getc();
         }
         else{
             bytes = file_read(f,buffer,size); 
         }
     }
+    else {
+        //todo return 무슨 값으로 해야하나 생각해야함
+    }
 
     lock_release(&filesys_lock);
     return bytes;
 }
+
 
 int sys_write(int fd, void *buffer, unsigned size)
 {
@@ -236,7 +246,7 @@ int sys_write(int fd, void *buffer, unsigned size)
     return bytes;
 }
 
-void seek (int fd, unsigned position)
+void sys_seek (int fd, unsigned position)
 {
     /* 파일 디스크립터를 이용하여 파일 객체 검색 */
     /* 해당 열린 파일의 위치(offset)를 position만큼 이동 */
@@ -244,7 +254,7 @@ void seek (int fd, unsigned position)
     file_seek(f, position);
 }
 
-unsigned tell (int fd)
+unsigned sys_tell (int fd)
 {
     /* 파일 디스크립터를 이용하여 파일 객체 검색 */
     /* 해당 열린 파일의 위치를 반환 */
@@ -254,7 +264,7 @@ unsigned tell (int fd)
 }
 
 
-void close (int fd)
+void sys_close (int fd)
 {
     /* 해당 파일 디스크립터에 해당하는 파일을 닫음 */
     /* 파일 디스크립터 엔트리 초기화 */
