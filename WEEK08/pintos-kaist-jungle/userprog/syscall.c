@@ -7,6 +7,7 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
+#include "userprog/process.h"
 
 void syscall_entry(void);
 void syscall_handler(struct intr_frame*);
@@ -168,7 +169,10 @@ int sys_open(const char* file) {
     /* 해당 파일 객체에 파일 디스크립터 부여 */
     /* 파일 디스크립터 리턴 */
     /* 해당 파일이 존재하지 않으면 -1 리턴 */
-    return process_add_file(filesys_open(file));
+    if (file == NULL) { sys_exit(-1); }
+    int temp = process_add_file(filesys_open(file));
+    // printf("------------>temp is = %d<--------------\n",temp);
+    return temp;
     //! process_add_file에서 fd가 없을때 NULL까지 반환시켜서 괜찮음
 }
 
@@ -192,10 +196,12 @@ int sys_read(int fd, void* buffer, unsigned size)
 
     struct file *f;
     lock_acquire(&filesys_lock);
-    int bytes;
+    int bytes = size;
     f = process_get_file(fd);
     if(fd == 0){
-        bytes = input_getc();
+        // while(bytes){
+            bytes = input_getc();
+        // }
     }
     else{
         bytes = file_read(f,buffer,size); 

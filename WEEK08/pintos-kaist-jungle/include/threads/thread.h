@@ -106,7 +106,7 @@ struct thread {
 
 	int exit_status; /* exit 호출 시 종료 status */
 
-	struct file* fd_table[128];
+	struct file* fd_table[64];
 	int next_fd;
 
 

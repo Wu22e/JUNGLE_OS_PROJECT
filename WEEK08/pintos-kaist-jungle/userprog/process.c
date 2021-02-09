@@ -331,18 +331,25 @@ process_exit(void) {
 	
 	// printf("%s: exit(%d)\n", curr->name, curr->exit_status);
 
-	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
 
-
-	/* 프로세스에 열린 모든 파일을 닫음 */
-	for (int i = 2; i < curr->next_fd; i++)
-		file_close(curr->fd_table[i]);
 	/* 파일 디스크립터 테이블의 최대값을 이용해 파일 디스크립터
 	   의 최소값인 2가 될 때까지 파일을 닫음 */
 	   /* 파일 디스크립터 테이블 메모리 해제 */
 
+	/* 프로세스에 열린 모든 파일을 닫음 */
+	for (int i = 2; i < curr->next_fd; i++){
+		if(curr->fd_table[i] != NULL){
+			process_close_file(curr->fd_table[i]);
+		}
+		else {}
+	}
+
+		
+	
+
 
 	process_cleanup();
+	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
 }
 
 /* Free the current process's resources. */
@@ -423,7 +430,7 @@ void process_close_file(int fd)
 	//! fd<=1 을 뺴준이유는 stdin stdout이 제대로작동하는데도
 	//! 여기서 걸러지면 문제가생길까봐 일단 주석처리해둠
 	// if (fd <= 1 || fd >= curr->next_fd) return;
-	if (fd <= 1 || fd >= curr->next_fd) return;
+	if (fd >= curr->next_fd) return;
 
 	file_close(curr->fd_table[fd]);
 	curr->fd_table[fd] = NULL;
@@ -454,7 +461,7 @@ struct thread* get_child_process(int pid)
 //! 추가
 void remove_child_process(struct thread* cp) {
 	list_remove(&cp->child_elem);
-	palloc_free_page(cp);
+	palloc_free_page((void *)cp);
 }
 
 /* We load ELF binaries.  The following definitions are taken
