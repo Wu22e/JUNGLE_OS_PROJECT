@@ -1,16 +1,11 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (exec-once) begin
-  (exec-once) I'm your father
-  (child-simple) run
-  exec-once: exit(81)
-Differences in `diff -u' format:
-  (exec-once) begin
-  (exec-once) I'm your father
-  (child-simple) run
-- exec-once: exit(81)
-+ child-simple: exit(81)
-+ (exec-once) end
-+ exec-once: exit(0)
+Kernel panic in run: PANIC at ../../threads/palloc.c:305 in palloc_free_multiple(): assertion `pg_ofs (pages) == 0' failed.
+Call stack: 0x800421691f 0x800420b6a2 0x800420b845 0x800421a4a6 0x800421bcc5 0x800421ba34 0x800421b840
+Translation of call stack:
+0x000000800421691f: debug_panic (lib/kernel/debug.c:32)
+0x000000800420b6a2: palloc_free_multiple (threads/palloc.c:306)
+0x000000800420b845: palloc_free_page (threads/palloc.c:329)
+0x000000800421a4a6: process_exec (userprog/process.c:271)
+0x000000800421bcc5: sys_exec (userprog/syscall.c:169)
+0x000000800421ba34: syscall_handler (userprog/syscall.c:89)
+0x000000800421b840: no_sti (userprog/syscall-entry.o:?)

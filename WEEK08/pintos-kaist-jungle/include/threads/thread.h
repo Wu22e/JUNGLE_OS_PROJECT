@@ -92,6 +92,7 @@ struct thread {
 	enum thread_status status;          /* Thread state. */
 	char name[16];                      /* Name (for debugging purposes). */
 	int priority;                       /* Priority. */
+    
 
 	//! 추가 : 프로세스 디스크립터 정보 추가 
 	tid_t par_tid; /* 부모 프로세스의 디스크립터 */
@@ -109,9 +110,6 @@ struct thread {
 	//! 헤더추가
 	struct file* fd_table[64];
 	int next_fd;
-
-
-
 
 	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
 	int64_t wakeup_tick;

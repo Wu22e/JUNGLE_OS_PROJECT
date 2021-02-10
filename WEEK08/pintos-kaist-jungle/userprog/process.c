@@ -21,8 +21,9 @@
 #ifdef VM
 #include "vm/vm.h"
 #endif
-#define FORK
+#define FORKx
 #define WAIT
+
 
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
@@ -202,8 +203,12 @@ error:
  * Returns -1 on fail. */
 int
 process_exec(void* f_name) {
-	char* file_name = f_name;
-	bool success;
+	// char* file_name = f_name; //! 잠깐 제거
+    
+    char* file_name = palloc_get_page(0); //! palloc_get_page에 인자안넘겨줘서 kernel에서 할당
+    memcpy(file_name, f_name, strlen(f_name)+1);
+	
+    bool success;
 
 	/* We cannot use the intr_frame in the thread structure.
 	 * This is because when current thread rescheduled,
@@ -214,12 +219,16 @@ process_exec(void* f_name) {
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
 	/* We first kill the current context */
+    // printf("------d----> %s <-----------\n",new_file_name);
+
+
 	process_cleanup();
+    // memcpy(file_name, new_file_name, sizeof f_name);
+    // printf("------d----> %s <-----------\n",new_file_name);
 
 	//! 토큰화해서 앞 인자를 load의 첫번째 인자로 넣는다.
 	char* tmp;
 	file_name = strtok_r(file_name, " ", &tmp);
-
 	/* And then load the binary */
 	success = load(file_name, &_if);
 
@@ -227,17 +236,17 @@ process_exec(void* f_name) {
 
 	if (!success){
 #ifdef FORK
-		thread_current()->process_load = 0;
+		thread_current()->process_load = 0; //! 이건 ppt 따라하다가 ...
 #endif
 		return -1;
 	}
 
 #ifdef FORK
-	thread_current()->process_load = 1;
+	thread_current()->process_load = 1; //! 이건 ppt 따라하다가 ...
 #endif
 	//! 인자들을 스택에 먼저 쌓는다.
 #ifdef FORK
-	sema_up(&thread_current()->semaphore_load);
+	sema_up(&thread_current()->semaphore_load); //! 이건 ppt 따라하다가 ...
 #endif
 
 	char* parse[100];
@@ -257,6 +266,13 @@ process_exec(void* f_name) {
 	//! - - - - - -
 
 	palloc_free_page(file_name);
+    // palloc_free_page(f_name);//! 얘 넣어으면 다터짐
+    //! 근데 f_name은 process_create_initd에서 palloc했는데
+    //! 에러가 발생하지않아서 free되지않은상태로 쭊내려와서
+    //! 여기서 프리할려고했는데 터짐 그이유는 모르겟음 나중에 
+    //! 보긴봐야하지만 잘모르겠음 
+    //todo 주의깊게 봐야함
+
 	/* Start switched process. */
 	do_iret(&_if);
 	NOT_REACHED();
@@ -567,7 +583,6 @@ load (const char *file_name, struct intr_frame *if_) {
 	/* Allocate and activate page directory. */
 	t->pml4 = pml4_create ();
 	if (t->pml4 == NULL)
-	// printf("-------------->0<--------------\n");
 		goto done;
 	process_activate (thread_current ());
 
@@ -596,13 +611,11 @@ load (const char *file_name, struct intr_frame *if_) {
 		struct Phdr phdr;
 
 		if (file_ofs < 0 || file_ofs > file_length (file))
-	// printf("-------------->1<--------------\n");
 
 			goto done;
 		file_seek (file, file_ofs);
 
 		if (file_read (file, &phdr, sizeof phdr) != sizeof phdr)
-	// printf("-------------->2<--------------\n");
 
 			goto done;
 		file_ofs += sizeof phdr;
@@ -617,7 +630,6 @@ load (const char *file_name, struct intr_frame *if_) {
 			case PT_DYNAMIC:
 			case PT_INTERP:
 			case PT_SHLIB:
-	// printf("-------------->3<--------------\n");
 
 				goto done;
 			case PT_LOAD:
@@ -641,11 +653,9 @@ load (const char *file_name, struct intr_frame *if_) {
 					}
 					if (!load_segment (file, file_page, (void *) mem_page,
 								read_bytes, zero_bytes, writable))
-	// printf("-------------->4<--------------\n");
 						goto done;
 				}
 				else
-	// printf("-------------->5<--------------\n");
 
 					goto done;
 				break;
@@ -654,7 +664,6 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* Set up stack. */
 	if (!setup_stack (if_))
-	// printf("-------------->6<--------------\n");
 
 		goto done;
 

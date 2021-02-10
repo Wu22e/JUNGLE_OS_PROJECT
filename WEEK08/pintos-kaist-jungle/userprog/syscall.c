@@ -157,13 +157,17 @@ pid_t sys_fork(const char* thread_name) {
 }
 
 int sys_exec(const char* file) {
-    tid_t child_tid = process_create_initd(file);
-    struct thread* child_thread = get_child_process(child_tid);
-    sema_down(&child_thread->semaphore_load);
-    if (child_thread->process_load == 0)
-        return -1;
-    else
-        return child_tid;
+    return process_exec(file);
+
+    //! 이건 ppt 따라하다가 ...
+    // tid_t child_tid = process_create_initd(file);
+    // struct thread* child_thread = get_child_process(child_tid);
+    // sema_down(&child_thread->semaphore_load);
+    // if (child_thread->process_load == 0)
+    //     return -1;
+    // else
+    //     return child_tid;
+    // return process_exec(thread_current()->name);
 }
 
 int sys_wait(pid_t pid) {
