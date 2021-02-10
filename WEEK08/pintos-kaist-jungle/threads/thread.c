@@ -372,8 +372,6 @@ thread_create(const char* name, int priority,
 		return TID_ERROR;
 
 
-
-
 	/* Initialize thread. */
 	init_thread(t, name, priority);	//! thread 구조체 초기화
 
@@ -418,6 +416,8 @@ thread_create(const char* name, int priority,
 		thread_yield();
 	}
 
+    //! fork 구현할떄 추가한것
+    sema_down(&thread_current()->semaphore_load);
 	return tid;
 }
 
@@ -450,8 +450,9 @@ thread_unblock(struct thread* t) {
 	old_level = intr_disable(); //! 인터럽트 배리어
 	ASSERT(t->status == THREAD_BLOCKED);
 
-	struct list_elem* curr_elem = list_begin(&ready_list);
-	struct thread* curr_thread;
+    //! 얘는 쓰이는 데가 없는데 도대체 어디에 쓰이는건지 모르겠음.
+	// struct list_elem* curr_elem = list_begin(&ready_list);
+	// struct thread* curr_thread;
 
 	//! 추가 : 우선순위 순으로 정렬 되어 ready_list에 삽입되도록 하자
 	list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL);

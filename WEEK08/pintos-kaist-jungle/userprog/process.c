@@ -21,13 +21,19 @@
 #ifdef VM
 #include "vm/vm.h"
 #endif
+//! 이전 코드 분류
 #define FORK
 #define WAIT
+//! 헤더 추가
+
 
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
 static void __do_fork (void *);
+
+// //! fork lock 추가
+// struct lock fork_lock;
 
 //! 유저 스택에 파싱된 토큰을 저장하는 함수
 void* argument_stack(char** parse, int count, void** esp);
@@ -64,6 +70,8 @@ process_create_initd (const char *file_name) { //! 유저프로그램 실행을 위한 준비
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
+
+
 	return tid;
 }
 
@@ -103,11 +111,13 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
 
+
 	/* 2. Resolve VA from the parent's page map level 4. */
 	parent_page = pml4_get_page (parent->pml4, va);
 
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
+    newpage = palloc_get_page(PAL_USER);
 
 	/* 4. TODO: Duplicate parent's page to the new page and
 	 *    TODO: check whether parent's page is writable or not (set WRITABLE
@@ -133,6 +143,9 @@ __do_fork (void *aux) {
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if;
+
+    parent_if = &(parent->tf); //! 추가 : fork를 위해서
+
 	bool succ = true;
 
 	/* 1. Read the cpu context to local stack. */
@@ -158,6 +171,12 @@ __do_fork (void *aux) {
 	 * TODO:       in include/filesys/file.h. Note that parent should not return
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
+
+    //! fork 구현 추가
+    for(int i = parent->next_fd; i >= 0; i--)
+        current->fd_table[i] = file_duplicate(parent->fd_table[i]);
+   
+    sema_up(&parent->semaphore_load);
 
 	process_init ();
 

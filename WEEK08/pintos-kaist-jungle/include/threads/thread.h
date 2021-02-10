@@ -110,9 +110,6 @@ struct thread {
 	struct file* fd_table[64];
 	int next_fd;
 
-
-
-
 	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
 	int64_t wakeup_tick;
 
@@ -130,6 +127,7 @@ struct thread {
 	/* Owned by userprog/process.c. */
 	uint64_t* pml4;                     /* Page map level 4 */
 #endif
+
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
 	struct supplemental_page_table spt;

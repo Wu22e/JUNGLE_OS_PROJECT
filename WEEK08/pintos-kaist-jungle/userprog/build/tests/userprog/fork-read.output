@@ -16,12 +16,12 @@ Executing 'fork-read':
 (fork-read) begin
 (fork-read) open "sample.txt"
 Kernel PANIC at ../../threads/mmu.c:215 in pml4_get_page(): assertion `is_user_vaddr (uaddr)' failed.
-Call stack: 0x8004216955 0x800420ceaf 0x800421a0b6 0x800420c939 0x800420c9eb 0x800420ca90 0x800420cb28 0x800421a199 0x8004207977.
+Call stack: 0x8004216955 0x800420ceaf 0x800421a0b6 0x800420c939 0x800420c9eb 0x800420ca90 0x800420cb28 0x800421a1e2 0x8004207977.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 59 ticks
-Thread: 30 idle ticks, 27 kernel ticks, 2 user ticks
+Timer: 58 ticks
+Thread: 30 idle ticks, 27 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 116 reads, 260 writes
 hd1:0: 111 reads, 0 writes
