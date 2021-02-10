@@ -146,9 +146,7 @@ void sys_exit(int status) {
 }
 
 pid_t sys_fork(const char* thread_name) {
-    //! 이것도 왜 넣어준거지?
-    struct thread* t = thread_current(); 
-    //! - - - - - - - - - - - - - - - - -
+    struct thread* t = thread_current();
     process_fork(thread_name, NULL);
 }
 
