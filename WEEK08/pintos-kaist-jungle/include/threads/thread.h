@@ -103,7 +103,7 @@ struct thread {
 
 	struct semaphore semaphore_exit; /* exit 세마포어 */
 	struct semaphore semaphore_load; /* load 세마포어 */
-
+    struct semaphore semaphore_fork; /* fork 세마포어 */
 	int exit_status; /* exit 호출 시 종료 status */
 
 	//! 헤더추가

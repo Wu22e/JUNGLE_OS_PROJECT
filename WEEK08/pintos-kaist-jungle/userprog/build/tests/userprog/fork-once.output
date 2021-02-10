@@ -13,19 +13,18 @@ Boot complete.
 Putting 'fork-once' into the file system...
 Executing 'fork-once':
 (fork-once) begin
-(fork-once) Parent: child exit status is 0
-(fork-once) end
-child: exit(0)
-(fork-once) Parent: child exit status is 0
+(fork-once) child run
+child: exit(81)
+(fork-once) Parent: child exit status is 81
 (fork-once) end
 fork-once: exit(0)
 Execution of 'fork-once' complete.
-Timer: 59 ticks
-Thread: 30 idle ticks, 26 kernel ticks, 3 user ticks
+Timer: 60 ticks
+Thread: 30 idle ticks, 27 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 234 writes
 hd1:0: 103 reads, 0 writes
-Console: 957 characters output
+Console: 922 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

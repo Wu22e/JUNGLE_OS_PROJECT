@@ -152,7 +152,8 @@ pid_t sys_fork(const char* thread_name) {
     //! 이거 왜 써놨는지 모르겠음 
     // struct thread* t = thread_current();
     //! - - - - - - - - - - - - -
-    process_fork(thread_name, NULL);
+    return (pid_t) process_fork(thread_name, NULL);
+    // return (pid_t) process_fork(thread_name, &thread_current()->fork_tf);
 }
 
 int sys_exec(const char* file) {

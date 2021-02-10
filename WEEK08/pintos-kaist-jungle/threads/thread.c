@@ -394,6 +394,7 @@ thread_create(const char* name, int priority,
 	t->process_exit = 0;
 	sema_init(&t->semaphore_exit, 0);
 	sema_init(&t->semaphore_load, 0);
+    sema_init(&t->semaphore_fork, 0);
 	list_push_back(&thread_current()->child, &t->child_elem);
 
 

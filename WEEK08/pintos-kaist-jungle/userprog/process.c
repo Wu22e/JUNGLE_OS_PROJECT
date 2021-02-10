@@ -87,7 +87,7 @@ tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	/* Clone current thread to new thread.*/
     tid_t temp = thread_create (name, PRI_DEFAULT, __do_fork, thread_current ());
-    sema_down(&thread_current()->semaphore_load);
+    sema_down(&thread_current()->semaphore_fork);
 	return temp;
 }
 
@@ -184,8 +184,9 @@ __do_fork (void *aux) {
         }
     }
 
+    current->next_fd = parent->next_fd;
     //! 추가 : 자식이 하는동안 부모는 딱 기다려!
-    sema_up(&parent->semaphore_load);
+    sema_up(&parent->semaphore_fork);
 
 	process_init ();
 
@@ -329,21 +330,22 @@ process_wait(tid_t child_tid UNUSED) {
 
 #ifdef WAIT
 	struct thread* child_thread = get_child_process(child_tid); //!  자식 프로세스의 프로세스 디스크립터 검색
-	if (child_thread == NULL) {
+	
+    if (child_thread == NULL) {
 		return -1; //! 예외 처리 발생시 -1 리턴
 	}
 
 	sema_down(&child_thread->semaphore_exit); //! 자식프로세스가 종료될 때까지 부모 프로세스 대기(세마포어 이용)
 	
-	int tmp;
+	int temp;
 
 	if (child_thread->process_exit == 0)
-		tmp = -1;
+		temp = -1;
 	else
-		tmp = child_thread->exit_status;
+		temp = child_thread->exit_status;
 
 	remove_child_process(child_thread); //!  자식 프로세스 디스크립터 삭제
-	return tmp; //!  자식 프로세스의 exit status 리턴
+	return temp; //!  자식 프로세스의 exit status 리턴
 #endif
 }
 
