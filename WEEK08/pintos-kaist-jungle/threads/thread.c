@@ -769,12 +769,15 @@ static void
 do_schedule(int status) {
 	ASSERT(intr_get_level() == INTR_OFF);
 	ASSERT(thread_current()->status == THREAD_RUNNING); //! 러닝중인 스레드가 아니어야함
-	while (!list_empty(&destruction_req)) {
-		struct thread* victim =
-			list_entry(list_pop_front(&destruction_req), struct thread, elem);
-		palloc_free_page(victim);
-	}
-	thread_current()->status = status;
+	
+    //! 추가: fork를 위해 삭제를 했다, 근데 왜 그래야 함???
+    // while (!list_empty(&destruction_req)) {
+	// 	struct thread* victim =
+	// 		list_entry(list_pop_front(&destruction_req), struct thread, elem);
+	// 	palloc_free_page(victim);
+	// }
+	
+    thread_current()->status = status;
 	schedule();
 }
 

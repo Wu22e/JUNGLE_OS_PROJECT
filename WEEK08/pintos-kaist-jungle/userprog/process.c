@@ -86,8 +86,9 @@ initd (void *f_name) {  // ! 유저 프로그램 실행
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	/* Clone current thread to new thread.*/
-	return thread_create (name,
-			PRI_DEFAULT, __do_fork, thread_current ());
+    tid_t temp = thread_create (name, PRI_DEFAULT, __do_fork, thread_current ());
+    sema_down(&thread_current()->semaphore_load);
+	return temp;
 }
 
 #ifndef VM
@@ -102,21 +103,35 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	bool writable;
 
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
+    //! 추가 : parent_page가 커널 영역이냐??
+    if(!is_user_vaddr(va)) return true; //! 왜 true여야 할까?
+    //! 커널이면, 기본적으로 이미 pte 복사가 되있다. 
+    //! 그래서 밑에 복사하는 과정이 필요가 없다. (어쩃든 복제된 건 맞으니까 true)
 
 	/* 2. Resolve VA from the parent's page map level 4. */
 	parent_page = pml4_get_page (parent->pml4, va);
 
+
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
+    //! 추가 : 자식도 메모리 할당 받아야지? 근데 유저영역에 받을건뎅
+    newpage = palloc_get_page(PAL_USER);
 
 	/* 4. TODO: Duplicate parent's page to the new page and
 	 *    TODO: check whether parent's page is writable or not (set WRITABLE
 	 *    TODO: according to the result). */
 
+    memcpy(newpage, parent_page, PGSIZE);
+
+    //! 추가 : 인자로 받은 pte가 writable 하냐??
+    writable = is_writable(pte);
+
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
+        //! 에러 핸들링! 이게 맞을까?
+        return false;
 	}
 	return true;
 }
@@ -135,7 +150,10 @@ __do_fork (void *aux) {
 	struct intr_frame *parent_if;
 	bool succ = true;
 
-	/* 1. Read the cpu context to local stack. */
+	//! parent_if 에 부모 intr_frame을 가져와야 하는데 parent->tf일까 ?? ㄴㄴ
+    parent_if = &parent->fork_tf;
+
+    /* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
 
 	/* 2. Duplicate PT */
@@ -159,10 +177,21 @@ __do_fork (void *aux) {
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
 
+    //! 추가 : 부모꺼 복사해와!!! 뭐를?? 파일들을!!
+    for(int i = parent->next_fd; i > 0; i--){
+        if(parent->fd_table[i]!= NULL ){
+            current->fd_table[i] = file_duplicate(parent->fd_table[i]);
+        }
+    }
+
+    //! 추가 : 자식이 하는동안 부모는 딱 기다려!
+    sema_up(&parent->semaphore_load);
+
 	process_init ();
 
 	/* Finally, switch to the newly created process. */
 	if (succ)
+        if_.R.rax = 0;  //! 자식은 0 리턴
 		do_iret (&if_);
 error:
 	thread_exit ();

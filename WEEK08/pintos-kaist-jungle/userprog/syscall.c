@@ -61,7 +61,7 @@ void
 syscall_handler(struct intr_frame* f UNUSED) {
     // TODO: Your implementation goes here.
     // printf("system call!\n");
-
+    //! 추가 : rsp가 커널영역은 아니지?
     check_address(f->rsp);
     // int number = f->rsp; // number = f->R.rax 이렇게 하나 똑같은 거겟지?
     switch (f->R.rax)
@@ -76,6 +76,9 @@ syscall_handler(struct intr_frame* f UNUSED) {
         break;
 
     case SYS_FORK:
+        //! 지금 돌고 있는게 부모거든?? 인자로 들어온 f받아가라
+        // thread_current()->fork_tf = *f; //! memcpy 성공하면 바꿔 봄
+        memcpy(&thread_current()->fork_tf, f, sizeof(struct intr_frame));
         // get_argument(f->rsp, args, 1);
         f->R.rax = sys_fork((const char*)f->R.rdi);
         // arg[0] = fork(f->R.rdi); // 이렇게 하면 안되겟지?
@@ -146,7 +149,9 @@ void sys_exit(int status) {
 }
 
 pid_t sys_fork(const char* thread_name) {
-    struct thread* t = thread_current();
+    //! 이거 왜 써놨는지 모르겠음 
+    // struct thread* t = thread_current();
+    //! - - - - - - - - - - - - -
     process_fork(thread_name, NULL);
 }
 
