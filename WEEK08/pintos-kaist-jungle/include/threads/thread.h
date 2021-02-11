@@ -111,6 +111,8 @@ struct thread {
 	struct file* fd_table[64];
 	int next_fd;
 
+	struct file* file_exec; //! 추가 : 실행중인 파일 구조체를 thread 구조체에 추가
+
 	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
 	int64_t wakeup_tick;
 

@@ -8,8 +8,8 @@
 // #include "threads/interrupt.h"
 /* Process identifier. */
 typedef int pid_t;
-//!  - - - - - - - -
 struct lock filesys_lock;
+//!  추가- - - - - - - -
 
 void syscall_init(void);
 /* 새로 구현한 함수 */

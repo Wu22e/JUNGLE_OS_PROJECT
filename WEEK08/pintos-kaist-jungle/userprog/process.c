@@ -33,6 +33,9 @@ static void __do_fork (void *);
 //! 유저 스택에 파싱된 토큰을 저장하는 함수
 void* argument_stack(char** parse, int count, void** esp);
 
+//! 추가 : 실행 중인 파일의 데이터 변경을 예방하기 위한 전역 lock 구조체 만듦
+struct lock file_exec_lock;
+
 
 /* General process initializer for initd and other process. */
 static void
@@ -60,7 +63,9 @@ process_create_initd (const char *file_name) { //! 유저프로그램 실행을 위한 준비
 	//! 추가 : 첫번째 인자 파싱
 	char* tmp;
 	file_name = strtok_r(file_name, " ", &tmp);
-
+	
+	lock_init(&file_exec_lock); //! 추가 file_exec_lock의 초기화를 process_create_initd에서 해줘야 겟다고 생각함 (아닐수도)
+	
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
 	if (tid == TID_ERROR)
@@ -264,8 +269,9 @@ process_exec(void* f_name) {
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - _if.rsp, true);
 	//! USER_STACK 공부잘하기
 	//! - - - - - -
-
+    
 	palloc_free_page(file_name);
+
     // palloc_free_page(f_name);//! 얘 넣어으면 다터짐
     //! 근데 f_name은 process_create_initd에서 palloc했는데
     //! 에러가 발생하지않아서 free되지않은상태로 쭊내려와서
@@ -392,7 +398,9 @@ process_exit(void) {
 	}
 
 	process_cleanup();
-
+	//! load 마지막 (goto에서 done으로 간 부분)에서 file_close한걸 이함수 끝부분에
+	//! cleanup 밑에다가 추가해봄
+	file_close(thread_current()->file_exec);
 	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
 }
 
@@ -584,14 +592,28 @@ load (const char *file_name, struct intr_frame *if_) {
 	t->pml4 = pml4_create ();
 	if (t->pml4 == NULL)
 		goto done;
+	
 	process_activate (thread_current ());
 
+	//! 추가 : 락 획득
+	lock_acquire(&file_exec_lock);
 	/* Open executable file. */
 	file = filesys_open (file_name);
 	if (file == NULL) {
+		lock_release(&file_exec_lock);
 		printf ("load: %s: open failed\n", file_name);
 		goto done;
 	}
+
+
+	//! 추가 :  thread 구조체의 run_file을 현재 실행할 파일로 초기화 후
+	//! file_deny_write()를 이용하여 파일에 대한 write를 거부 후
+	//! 락 해제
+	thread_current()->file_exec = file; 
+	file_deny_write(thread_current()->file_exec);
+	lock_release(&file_exec_lock);
+	//! - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - -- - - - - - -  
+
 
 	/* Read and verify executable header. */
 	if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr
@@ -604,6 +626,8 @@ load (const char *file_name, struct intr_frame *if_) {
 		printf ("load: %s: error loading executable\n", file_name);
 		goto done;
 	}
+
+
 
 	/* Read program headers. */
 	file_ofs = ehdr.e_phoff;
@@ -677,7 +701,7 @@ load (const char *file_name, struct intr_frame *if_) {
 
 done:
 	/* We arrive here whether the load is successful or not. */
-	file_close (file);
+	// file_close (file); //! 잠시 주석, process_exit에서 닫을거임
 	return success;
 }
 
