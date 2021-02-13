@@ -394,6 +394,7 @@ thread_create(const char* name, int priority,
 	t->process_exit = 0;
 	sema_init(&t->semaphore_exit, 0);
 	sema_init(&t->semaphore_load, 0);
+    sema_init(&t->semaphore_fork, 0);
 	list_push_back(&thread_current()->child, &t->child_elem);
 
 
@@ -408,14 +409,12 @@ thread_create(const char* name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
-	/* fd 값 초기화(0,1은 표준 입력,출력) */
-	/* File Descriptor 테이블에 메모리 할당 */
-	t->next_fd = 2;
 
-	/* Add to run queue. */
-	thread_unblock(t); // t는 자식
 
-	//! 추가 : 생성된 스레드의 우선순위가 현재 실행중인 스레드의 우선순위보다 높다면 CPU를 양보한다.
+		/* Add to run queue. */
+		thread_unblock(t); // t는 자식
+
+		//! 추가 : 생성된 스레드의 우선순위가 현재 실행중인 스레드의 우선순위보다 높다면 CPU를 양보한다.
 	if (t->priority > thread_current()->priority) {
 		thread_yield();
 	}
@@ -643,6 +642,9 @@ init_thread(struct thread* t, const char* name, int priority) {
 	memset(t, 0, sizeof * t);
 	t->status = THREAD_BLOCKED;
 	strlcpy(t->name, name, sizeof t->name);
+
+
+
 	t->tf.rsp = (uint64_t)t + PGSIZE - sizeof(void*);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
@@ -771,12 +773,15 @@ static void
 do_schedule(int status) {
 	ASSERT(intr_get_level() == INTR_OFF);
 	ASSERT(thread_current()->status == THREAD_RUNNING); //! 러닝중인 스레드가 아니어야함
-	while (!list_empty(&destruction_req)) {
-		struct thread* victim =
-			list_entry(list_pop_front(&destruction_req), struct thread, elem);
-		palloc_free_page(victim);
-	}
-	thread_current()->status = status;
+	
+    //! 추가: fork를 위해 삭제를 했다, 근데 왜 그래야 함???
+    // while (!list_empty(&destruction_req)) {
+	// 	struct thread* victim =
+	// 		list_entry(list_pop_front(&destruction_req), struct thread, elem);
+	// 	palloc_free_page(victim);
+	// }
+	
+    thread_current()->status = status;
 	schedule();
 }
 

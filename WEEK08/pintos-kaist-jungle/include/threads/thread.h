@@ -92,6 +92,7 @@ struct thread {
 	enum thread_status status;          /* Thread state. */
 	char name[16];                      /* Name (for debugging purposes). */
 	int priority;                       /* Priority. */
+    
 
 	//! 추가 : 프로세스 디스크립터 정보 추가 
 	tid_t par_tid; /* 부모 프로세스의 디스크립터 */
@@ -103,14 +104,14 @@ struct thread {
 
 	struct semaphore semaphore_exit; /* exit 세마포어 */
 	struct semaphore semaphore_load; /* load 세마포어 */
-
+    struct semaphore semaphore_fork; /* fork 세마포어 */
 	int exit_status; /* exit 호출 시 종료 status */
 
-	struct file* fd_table[128];
+	//! 헤더추가
+	struct file* fd_table[64];
 	int next_fd;
 
-
-
+	struct file* file_exec; //! 추가 : 실행중인 파일 구조체를 thread 구조체에 추가
 
 	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
 	int64_t wakeup_tick;
@@ -136,6 +137,7 @@ struct thread {
 
 	/* Owned by thread.c. */
 	struct intr_frame tf;               /* Information for switching */
+    struct intr_frame fork_tf; //! 추가 : fork를 위한 tf
 	unsigned magic;                     /* Detects stack overflow. */
 };
 

@@ -268,11 +268,6 @@ lock_held_by_current_thread(const struct lock* lock) {
 	return lock->holder == thread_current();
 }
 
-/* One semaphore in a list. */
-struct semaphore_elem {
-	struct list_elem elem;              /* List element. */
-	struct semaphore semaphore;         /* This semaphore. */
-};
 
 //! 해당 condition variable 을 기다리는 세마포어 리스트를
 //! 가장 높은 우선순위를 가지는 스레드의 우선순위 순으로 정렬하도록 구현
