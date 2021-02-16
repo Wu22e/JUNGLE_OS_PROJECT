@@ -368,7 +368,7 @@ thread_create(const char* name, int priority,
 
 	/* Allocate thread. */
 	t = palloc_get_page(PAL_ZERO);   //! 페이지 할당
-	if (t == NULL)
+	if (t == NULL)                   //! 팔록 가드(메모리할당하다 실패할 수 있기 때문)
 		return TID_ERROR;
 
 
@@ -376,6 +376,16 @@ thread_create(const char* name, int priority,
 
 	/* Initialize thread. */
 	init_thread(t, name, priority);	//! thread 구조체 초기화
+
+    t->fd_table = palloc_get_page(PAL_ZERO); //! 추가 : 투 포인터로 선언 했기에
+    //! palloc_get_page로 메모리 할당해줌
+    //! 근데 왜 init_thread 안에서 하면 is_thread가 뜰까?
+
+
+    if (t->fd_table == NULL){    //! 팔록 가드(메모리할당하다 실패할 수 있기 때문)
+		// printf("------>>>> thread_create 함수입니다 <<<<------\n");
+        return TID_ERROR;
+    }
 
 	//! 추가
 	/* fd 값 초기화(0,1은 표준 입력,출력) */
@@ -390,8 +400,8 @@ thread_create(const char* name, int priority,
 
 
 	t->par_tid = thread_current()->tid;
-	t->process_load = 0;
-	t->process_exit = 0;
+	t->is_process_load = 0;
+	t->is_process_exit = 0;
 	sema_init(&t->semaphore_exit, 0);
 	sema_init(&t->semaphore_load, 0);
     sema_init(&t->semaphore_fork, 0);
@@ -643,8 +653,6 @@ init_thread(struct thread* t, const char* name, int priority) {
 	t->status = THREAD_BLOCKED;
 	strlcpy(t->name, name, sizeof t->name);
 
-
-
 	t->tf.rsp = (uint64_t)t + PGSIZE - sizeof(void*);
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
@@ -775,11 +783,11 @@ do_schedule(int status) {
 	ASSERT(thread_current()->status == THREAD_RUNNING); //! 러닝중인 스레드가 아니어야함
 	
     //! 추가: fork를 위해 삭제를 했다, 근데 왜 그래야 함???
-    // while (!list_empty(&destruction_req)) {
-	// 	struct thread* victim =
-	// 		list_entry(list_pop_front(&destruction_req), struct thread, elem);
-	// 	palloc_free_page(victim);
-	// }
+    while (!list_empty(&destruction_req)) {
+		struct thread* victim =
+			list_entry(list_pop_front(&destruction_req), struct thread, elem);
+		palloc_free_page(victim);
+	}
 	
     thread_current()->status = status;
 	schedule();
@@ -814,7 +822,12 @@ schedule(void) {
 		   schedule(). */
 		if (curr && curr->status == THREAD_DYING && curr != initial_thread) {
 			ASSERT(curr != next);
-			list_push_back(&destruction_req, &curr->elem);
+            if(!curr->is_process_exit){ //! 추가 : 이 조건을 햇을때 왜 되는가?
+            //! 일단 두 스케줄에서 여기는 좀비 프로세스 or 고아 프로세스를 
+            //! 처리해주기 위함
+            // todo 여기를 반드시 이해해야 할듯
+			    list_push_back(&destruction_req, &curr->elem);
+            }
 		}
 
 		/* Before switching the thread, we first save the information

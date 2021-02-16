@@ -44,6 +44,8 @@ int make_children (void);
 static void
 consume_some_resources (void)
 {
+//   printf("자식이 여기들어 왔다!\n");
+
   int fd, fdmax = 126;
 
   /* Open as many files as we can, up to fdmax.
@@ -61,7 +63,10 @@ consume_some_resources (void)
 			  break;
 	  }
 #else
+        // int temp = open (test_name);
+        // printf("--->>> HERE %d <<<---\n",fd);
 		if (open (test_name) == -1)
+        // printf("")
 		  break;
 #endif
   }
@@ -114,15 +119,20 @@ make_children (void) {
         fail ("crashed child should return -1.");
       } else if (pid == 0) {
         consume_some_resources_and_die();
+        // printf("---what the fuck %")
         fail ("Unreachable");
       }
     }
 
+    // printf("-------------->1<-----------------\n");
     snprintf (child_name, sizeof child_name, "%s_%d_%s", "child", i, "O");
+    // printf("-------------->2<-----------------\n");
     pid = fork(child_name);
+    // printf("---------------->pid = %d<---------------\n", pid);
     if (pid < 0) {
       exit (i);
     } else if (pid == 0) {
+    //   printf("자식이 여기들어왔니?\n");
       consume_some_resources();
     } else {
       break;

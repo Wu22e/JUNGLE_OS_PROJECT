@@ -22,8 +22,8 @@ child-syn-read: exit(0)
 (syn-read) exec child 1 of 10: "child-syn-read 0"
 child-syn-read: exit(1)
 (syn-read) exec child 2 of 10: "child-syn-read 1"
-child-syn-read: exit(2)
 (syn-read) exec child 3 of 10: "child-syn-read 2"
+child-syn-read: exit(2)
 child-syn-read: exit(3)
 (syn-read) exec child 4 of 10: "child-syn-read 3"
 child-syn-read: exit(4)
@@ -51,10 +51,10 @@ child-syn-read: exit(9)
 (syn-read) end
 syn-read: exit(0)
 Execution of 'syn-read' complete.
-Timer: 392 ticks
-Thread: 30 idle ticks, 36 kernel ticks, 326 user ticks
+Timer: 388 ticks
+Thread: 30 idle ticks, 36 kernel ticks, 322 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 10976 reads, 504 writes
+hd0:1: 10985 reads, 504 writes
 hd1:0: 225 reads, 0 writes
 Console: 2325 characters output
 Keyboard: 0 keys pressed

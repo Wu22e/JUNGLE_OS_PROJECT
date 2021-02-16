@@ -143,7 +143,7 @@ void sys_halt(void) {
 void sys_exit(int status) {
     struct thread* cur = thread_current();
     cur->exit_status = status;
-    cur->process_exit = 1;
+    cur->is_process_exit = 1;
     printf("%s: exit(%d)\n", cur->name, cur->exit_status);
     thread_exit();
 }
@@ -163,7 +163,7 @@ int sys_exec(const char* file) {
     // tid_t child_tid = process_create_initd(file);
     // struct thread* child_thread = get_child_process(child_tid);
     // sema_down(&child_thread->semaphore_load);
-    // if (child_thread->process_load == 0)
+    // if (child_thread->is_process_load == 0)
     //     return -1;
     // else
     //     return child_tid;
