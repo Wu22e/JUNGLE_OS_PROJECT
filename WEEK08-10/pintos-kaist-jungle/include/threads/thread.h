@@ -94,38 +94,38 @@ struct thread {
 	int priority;                       /* Priority. */
     
 
-	//! Ãß°¡ : ÇÁ·Î¼¼½º µğ½ºÅ©¸³ÅÍ Á¤º¸ Ãß°¡ 
-	tid_t par_tid; /* ºÎ¸ğ ÇÁ·Î¼¼½ºÀÇ µğ½ºÅ©¸³ÅÍ */
-	struct list_elem child_elem; /* ÀÚ½Ä ¸®½ºÆ® element */
-	struct list child; /* ÀÚ½Ä ¸®½ºÆ® */
+	//! ì¶”ê°€ : í”„ë¡œì„¸ìŠ¤ ë””ìŠ¤í¬ë¦½í„° ì •ë³´ ì¶”ê°€ 
+	struct thread* parent; /* ë¶€ëª¨ í”„ë¡œì„¸ìŠ¤ì˜ ë””ìŠ¤í¬ë¦½í„° */
+	struct list_elem child_elem; /* ìì‹ ë¦¬ìŠ¤íŠ¸ element */
+	struct list child; /* ìì‹ ë¦¬ìŠ¤íŠ¸ */
 
-	int is_process_load; /* ÇÁ·Î¼¼½ºÀÇ ÇÁ·Î±×·¥ ¸Ş¸ğ¸® ÀûÀç À¯¹« */
-	int is_process_exit; /* ÇÁ·Î¼¼½º°¡ Á¾·á À¯¹« È®ÀÎ */
+	int is_process_load; /* í”„ë¡œì„¸ìŠ¤ì˜ í”„ë¡œê·¸ë¨ ë©”ëª¨ë¦¬ ì ì¬ ìœ ë¬´ */
+	int is_process_exit; /* í”„ë¡œì„¸ìŠ¤ê°€ ì¢…ë£Œ ìœ ë¬´ í™•ì¸ */
 
-    int success_fork; //! oom Ãß°¡ : fork ½ÇÆĞ½Ã fork °¡ -1 ¸®ÅÏÇÒ ¼ö ÀÖ°Ô
+    int success_fork; //! oom ì¶”ê°€ : fork ì‹¤íŒ¨ì‹œ fork ê°€ -1 ë¦¬í„´í•  ìˆ˜ ìˆê²Œ
 
-	struct semaphore semaphore_exit; /* exit ¼¼¸¶Æ÷¾î */
-	struct semaphore semaphore_load; /* load ¼¼¸¶Æ÷¾î */
-    struct semaphore semaphore_fork; /* fork ¼¼¸¶Æ÷¾î */
-	int exit_status; /* exit È£Ãâ ½Ã Á¾·á status */
+	struct semaphore semaphore_exit; /* exit ì„¸ë§ˆí¬ì–´ */
+	struct semaphore semaphore_load; /* load ì„¸ë§ˆí¬ì–´ */
+    struct semaphore semaphore_fork; /* fork ì„¸ë§ˆí¬ì–´ */
+	int exit_status; /* exit í˜¸ì¶œ ì‹œ ì¢…ë£Œ status */
 
-	//! Çì´õÃß°¡
-    struct file **fd_table; //! fd_tableÀ» ÅõÆ÷ÀÎÅÍ·Î ¹Ù²ãÁÜ
+	//! í—¤ë”ì¶”ê°€
+    struct file **fd_table; //! fd_tableì„ íˆ¬í¬ì¸í„°ë¡œ ë°”ê¿”ì¤Œ
 	// struct file* fd_table[64];
 	int next_fd;
 
-	struct file* file_exec; //! Ãß°¡ : ½ÇÇàÁßÀÎ ÆÄÀÏ ±¸Á¶Ã¼¸¦ thread ±¸Á¶Ã¼¿¡ Ãß°¡
-    //! ÀÌ°Å´Â rox ¹®Á¦ÇØ°áÇÏ±â À§ÇÔ
+	struct file* file_exec; //! ì¶”ê°€ : ì‹¤í–‰ì¤‘ì¸ íŒŒì¼ êµ¬ì¡°ì²´ë¥¼ thread êµ¬ì¡°ì²´ì— ì¶”ê°€
+    //! ì´ê±°ëŠ” rox ë¬¸ì œí•´ê²°í•˜ê¸° ìœ„í•¨
 
-	//! Ãß°¡ : ±ú¾î³ª¾ß ÇÒ tickÀ» ÀúÀåÇÒ º¯¼ö Ãß°¡
+	//! ì¶”ê°€ : ê¹¨ì–´ë‚˜ì•¼ í•  tickì„ ì €ì¥í•  ë³€ìˆ˜ ì¶”ê°€
 	int64_t wakeup_tick;
 
-	//! - - - Ãß°¡ : priority donation °ü·Ã Ç×¸ñ Ãß°¡ - - - -
+	//! - - - ì¶”ê°€ : priority donation ê´€ë ¨ í•­ëª© ì¶”ê°€ - - - -
 
-	int init_priority;	//! donation ÀÌÈÄ ¿ì¼±¼øÀ§¸¦ ÃÊ±âÈ­ÇÏ±â À§ÇØ ÃÊ±â°ª ÀúÀå
-	struct lock* wait_on_lock;	//! ÇØ´ç ½º·¹µå°¡ ´ë±âÇÏ°íÀÖ´Â lock ÀÚ·á±¸Á¶ÀÇ ÁÖ¼Ò¸¦ ÀúÀå
-	struct list donations;				//! multiple donationÀ» °í·ÁÇÏ±â À§ÇØ »ç¿ë
-	struct list_elem donation_elem; 	//! À§¿Í °°À½
+	int init_priority;	//! donation ì´í›„ ìš°ì„ ìˆœìœ„ë¥¼ ì´ˆê¸°í™”í•˜ê¸° ìœ„í•´ ì´ˆê¸°ê°’ ì €ì¥
+	struct lock* wait_on_lock;	//! í•´ë‹¹ ìŠ¤ë ˆë“œê°€ ëŒ€ê¸°í•˜ê³ ìˆëŠ” lock ìë£Œêµ¬ì¡°ì˜ ì£¼ì†Œë¥¼ ì €ì¥
+	struct list donations;				//! multiple donationì„ ê³ ë ¤í•˜ê¸° ìœ„í•´ ì‚¬ìš©
+	struct list_elem donation_elem; 	//! ìœ„ì™€ ê°™ìŒ
 
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
@@ -141,7 +141,7 @@ struct thread {
 
 	/* Owned by thread.c. */
 	struct intr_frame tf;               /* Information for switching */
-    struct intr_frame fork_tf; //! Ãß°¡ : fork¸¦ À§ÇÑ tf
+    struct intr_frame fork_tf; //! ì¶”ê°€ : forkë¥¼ ìœ„í•œ tf
 	unsigned magic;                     /* Detects stack overflow. */
 };
 
@@ -179,17 +179,17 @@ int thread_get_load_avg(void);
 
 void do_iret(struct intr_frame* tf);
 
-//! ¼±¾ğ Ãß°¡
+//! ì„ ì–¸ ì¶”ê°€
 void thread_sleep(int64_t ticks);
 void thread_awake(int64_t ticks);
 int64_t get_next_tick_to_awake(void);
 void update_next_tick_to_awake(int64_t ticks);
 
-//! ¼±¾ğ Ãß°¡ : priority
+//! ì„ ì–¸ ì¶”ê°€ : priority
 void test_max_priority(void);
 bool cmp_priority(const struct list_elem* a, const struct list_elem* b, void* aux UNUSED);
 
-//! ¼±¾ğ Ãß°¡ : priority
+//! ì„ ì–¸ ì¶”ê°€ : priority
 void donate_priority(void);
 void remove_with_lock(struct lock* lock);
 void refresh_priority(void);

@@ -8,7 +8,7 @@
 #include "threads/flags.h"
 #include "intrinsic.h"
 
-//! read / write ¸¦ À§ÇØ Çì´õ Ãß°¡
+//! read / write ë¥¼ ìœ„í•´ í—¤ë” ì¶”ê°€
 #include "threads/synch.h"
 #include "filesys/file.h"
 #include "filesys/filesys.h"
@@ -33,7 +33,7 @@ void syscall_handler(struct intr_frame*);
 
 void
 syscall_init(void) {
-    lock_init(&filesys_lock); //! Ãß°¡ : filesys_lock ÃÊ±âÈ­
+    lock_init(&filesys_lock); //! ì¶”ê°€ : filesys_lock ì´ˆê¸°í™”
     write_msr(MSR_STAR, ((uint64_t)SEL_UCSEG - 0x10) << 48 |
         ((uint64_t)SEL_KCSEG) << 32);
     write_msr(MSR_LSTAR, (uint64_t)syscall_entry);
@@ -61,9 +61,9 @@ void
 syscall_handler(struct intr_frame* f UNUSED) {
     // TODO: Your implementation goes here.
     // printf("system call!\n");
-    //! Ãß°¡ : rsp°¡ Ä¿³Î¿µ¿ªÀº ¾Æ´ÏÁö?
+    //! ì¶”ê°€ : rspê°€ ì»¤ë„ì˜ì—­ì€ ì•„ë‹ˆì§€?
     check_address(f->rsp);
-    // int number = f->rsp; // number = f->R.rax ÀÌ·¸°Ô ÇÏ³ª ¶È°°Àº °Å°ÙÁö?
+    // int number = f->rsp; // number = f->R.rax ì´ë ‡ê²Œ í•˜ë‚˜ ë˜‘ê°™ì€ ê±°ê²Ÿì§€?
     switch (f->R.rax)
     {
     case SYS_HALT:
@@ -76,12 +76,12 @@ syscall_handler(struct intr_frame* f UNUSED) {
         break;
 
     case SYS_FORK:
-        //! Áö±İ µ¹°í ÀÖ´Â°Ô ºÎ¸ğ°Åµç?? ÀÎÀÚ·Î µé¾î¿Â f¹Ş¾Æ°¡¶ó
-        // thread_current()->fork_tf = *f; //! memcpy ¼º°øÇÏ¸é ¹Ù²ã º½
+        //! ì§€ê¸ˆ ëŒê³  ìˆëŠ”ê²Œ ë¶€ëª¨ê±°ë“ ?? ì¸ìë¡œ ë“¤ì–´ì˜¨ fë°›ì•„ê°€ë¼
+        // thread_current()->fork_tf = *f; //! memcpy ì„±ê³µí•˜ë©´ ë°”ê¿” ë´„
         memcpy(&thread_current()->fork_tf, f, sizeof(struct intr_frame));
         // get_argument(f->rsp, args, 1);
         f->R.rax = sys_fork((const char*)f->R.rdi);
-        // arg[0] = fork(f->R.rdi); // ÀÌ·¸°Ô ÇÏ¸é ¾ÈµÇ°ÙÁö?
+        // arg[0] = fork(f->R.rdi); // ì´ë ‡ê²Œ í•˜ë©´ ì•ˆë˜ê²Ÿì§€?
         break;
 
     case SYS_EXEC:
@@ -149,7 +149,7 @@ void sys_exit(int status) {
 }
 
 pid_t sys_fork(const char* thread_name) {
-    //! ÀÌ°Å ¿Ö ½á³ù´ÂÁö ¸ğ¸£°ÚÀ½ 
+    //! ì´ê±° ì™œ ì¨ë†¨ëŠ”ì§€ ëª¨ë¥´ê² ìŒ 
     // struct thread* t = thread_current();
     //! - - - - - - - - - - - - -
     return (pid_t) process_fork(thread_name, NULL);
@@ -159,7 +159,7 @@ pid_t sys_fork(const char* thread_name) {
 int sys_exec(const char* file) {
     return process_exec(file);
 
-    //! ÀÌ°Ç ppt µû¶óÇÏ´Ù°¡ ...
+    //! ì´ê±´ ppt ë”°ë¼í•˜ë‹¤ê°€ ...
     // tid_t child_tid = process_create_initd(file);
     // struct thread* child_thread = get_child_process(child_tid);
     // sema_down(&child_thread->semaphore_load);
@@ -184,20 +184,20 @@ bool sys_remove(const char* file) {
 }
 
 int sys_open(const char* file) {
-    /* ÆÄÀÏÀ» open */
-    /* ÇØ´ç ÆÄÀÏ °´Ã¼¿¡ ÆÄÀÏ µğ½ºÅ©¸³ÅÍ ºÎ¿© */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ ¸®ÅÏ */
-    /* ÇØ´ç ÆÄÀÏÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é -1 ¸®ÅÏ */
+    /* íŒŒì¼ì„ open */
+    /* í•´ë‹¹ íŒŒì¼ ê°ì²´ì— íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° ë¶€ì—¬ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° ë¦¬í„´ */
+    /* í•´ë‹¹ íŒŒì¼ì´ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ -1 ë¦¬í„´ */
     if (file == NULL) { sys_exit(-1); }
-    int temp = process_add_file(filesys_open(file));
+    int temp = process_add_file(fileë‡¨sys_open(file));
     return temp;
-    // ! process_add_file¿¡¼­ fd°¡ ¾øÀ»¶§ NULL±îÁö ¹İÈ¯½ÃÄÑ¼­ ±¦ÂúÀ½
+    // ! process_add_fileì—ì„œ fdê°€ ì—†ì„ë•Œ NULLê¹Œì§€ ë°˜í™˜ì‹œì¼œì„œ ê´œì°®ìŒ
 }
 
 int sys_filesize(int fd) {
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ °´Ã¼ °Ë»ö */
-    /* ÇØ´ç ÆÄÀÏÀÇ ±æÀÌ¸¦ ¸®ÅÏ */
-    /* ÇØ´ç ÆÄÀÏÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é -1 ¸®ÅÏ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ ê°ì²´ ê²€ìƒ‰ */
+    /* í•´ë‹¹ íŒŒì¼ì˜ ê¸¸ì´ë¥¼ ë¦¬í„´ */
+    /* í•´ë‹¹ íŒŒì¼ì´ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ -1 ë¦¬í„´ */
     struct file* f = process_get_file(fd);
     if (f == NULL) return -1;
     return file_length(f);
@@ -205,12 +205,12 @@ int sys_filesize(int fd) {
 
 int sys_read(int fd, void* buffer, unsigned size)
 {
-    /* ÆÄÀÏ¿¡ µ¿½Ã Á¢±ÙÀÌ ÀÏ¾î³¯ ¼ö ÀÖÀ¸¹Ç·Î Lock »ç¿ë */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ °´Ã¼ °Ë»ö */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ°¡ 0ÀÏ °æ¿ì Å°º¸µå¿¡ ÀÔ·ÂÀ» ¹öÆÛ¿¡ ÀúÀå ÈÄ
-       ¹öÆÛÀÇ ÀúÀåÇÑ Å©±â¸¦ ¸®ÅÏ (input_getc() ÀÌ¿ë) */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ°¡ 0ÀÌ ¾Æ´Ò °æ¿ì ÆÄÀÏÀÇ µ¥ÀÌÅÍ¸¦ Å©±â¸¸Å­ ÀúÀå ÈÄ 
-       ÀĞÀº ¹ÙÀÌÆ® ¼ö¸¦ ¸®ÅÏ */
+    /* íŒŒì¼ì— ë™ì‹œ ì ‘ê·¼ì´ ì¼ì–´ë‚  ìˆ˜ ìˆìœ¼ë¯€ë¡œ Lock ì‚¬ìš© */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ ê°ì²´ ê²€ìƒ‰ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ê°€ 0ì¼ ê²½ìš° í‚¤ë³´ë“œì— ì…ë ¥ì„ ë²„í¼ì— ì €ì¥ í›„
+       ë²„í¼ì˜ ì €ì¥í•œ í¬ê¸°ë¥¼ ë¦¬í„´ (input_getc() ì´ìš©) */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ê°€ 0ì´ ì•„ë‹ ê²½ìš° íŒŒì¼ì˜ ë°ì´í„°ë¥¼ í¬ê¸°ë§Œí¼ ì €ì¥ í›„ 
+       ì½ì€ ë°”ì´íŠ¸ ìˆ˜ë¥¼ ë¦¬í„´ */
     // check_address(buffer);
     struct file *f;
     int bytes = size;
@@ -225,7 +225,7 @@ int sys_read(int fd, void* buffer, unsigned size)
         }
     }
     else {
-        //todo return ¹«½¼ °ªÀ¸·Î ÇØ¾ßÇÏ³ª »ı°¢ÇØ¾ßÇÔ
+        //todo return ë¬´ìŠ¨ ê°’ìœ¼ë¡œ í•´ì•¼í•˜ë‚˜ ìƒê°í•´ì•¼í•¨
     }
 
     lock_release(&filesys_lock);
@@ -235,12 +235,12 @@ int sys_read(int fd, void* buffer, unsigned size)
 
 int sys_write(int fd, void *buffer, unsigned size)
 {
-    /* ÆÄÀÏ¿¡ µ¿½Ã Á¢±ÙÀÌ ÀÏ¾î³¯ ¼ö ÀÖÀ¸¹Ç·Î Lock »ç¿ë */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ °´Ã¼ °Ë»ö */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ°¡ 1ÀÏ °æ¿ì ¹öÆÛ¿¡ ÀúÀåµÈ °ªÀ» È­¸é¿¡ Ãâ·Â
-       ÈÄ ¹öÆÛÀÇ Å©±â ¸®ÅÏ (putbuf() ÀÌ¿ë) */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ°¡ 1ÀÌ ¾Æ´Ò °æ¿ì ¹öÆÛ¿¡ ÀúÀåµÈ µ¥ÀÌÅÍ¸¦ Å©±â
-       ¸¸Å­ ÆÄÀÏ¿¡ ±â·ÏÈÄ ±â·ÏÇÑ ¹ÙÀÌÆ® ¼ö¸¦ ¸®ÅÏ */
+    /* íŒŒì¼ì— ë™ì‹œ ì ‘ê·¼ì´ ì¼ì–´ë‚  ìˆ˜ ìˆìœ¼ë¯€ë¡œ Lock ì‚¬ìš© */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ ê°ì²´ ê²€ìƒ‰ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ê°€ 1ì¼ ê²½ìš° ë²„í¼ì— ì €ì¥ëœ ê°’ì„ í™”ë©´ì— ì¶œë ¥
+       í›„ ë²„í¼ì˜ í¬ê¸° ë¦¬í„´ (putbuf() ì´ìš©) */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ê°€ 1ì´ ì•„ë‹ ê²½ìš° ë²„í¼ì— ì €ì¥ëœ ë°ì´í„°ë¥¼ í¬ê¸°
+       ë§Œí¼ íŒŒì¼ì— ê¸°ë¡í›„ ê¸°ë¡í•œ ë°”ì´íŠ¸ ìˆ˜ë¥¼ ë¦¬í„´ */
     struct file *f;
     lock_acquire(&filesys_lock);
     int bytes;
@@ -258,16 +258,16 @@ int sys_write(int fd, void *buffer, unsigned size)
 
 void sys_seek (int fd, unsigned position)
 {
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ °´Ã¼ °Ë»ö */
-    /* ÇØ´ç ¿­¸° ÆÄÀÏÀÇ À§Ä¡(offset)¸¦ position¸¸Å­ ÀÌµ¿ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ ê°ì²´ ê²€ìƒ‰ */
+    /* í•´ë‹¹ ì—´ë¦° íŒŒì¼ì˜ ìœ„ì¹˜(offset)ë¥¼ positionë§Œí¼ ì´ë™ */
     struct file *f =process_get_file(fd);
     file_seek(f, position);
 }
 
 unsigned sys_tell (int fd)
 {
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ °´Ã¼ °Ë»ö */
-    /* ÇØ´ç ¿­¸° ÆÄÀÏÀÇ À§Ä¡¸¦ ¹İÈ¯ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ ê°ì²´ ê²€ìƒ‰ */
+    /* í•´ë‹¹ ì—´ë¦° íŒŒì¼ì˜ ìœ„ì¹˜ë¥¼ ë°˜í™˜ */
     struct file *f =process_get_file(fd);
     return file_tell(f);
 
@@ -276,7 +276,7 @@ unsigned sys_tell (int fd)
 
 void sys_close (int fd)
 {
-    /* ÇØ´ç ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¿¡ ÇØ´çÇÏ´Â ÆÄÀÏÀ» ´İÀ½ */
-    /* ÆÄÀÏ µğ½ºÅ©¸³ÅÍ ¿£Æ®¸® ÃÊ±âÈ­ */
+    /* í•´ë‹¹ íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ì— í•´ë‹¹í•˜ëŠ” íŒŒì¼ì„ ë‹«ìŒ */
+    /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° ì—”íŠ¸ë¦¬ ì´ˆê¸°í™” */
     process_close_file(fd);
 }

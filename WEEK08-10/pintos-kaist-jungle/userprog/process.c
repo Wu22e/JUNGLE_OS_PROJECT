@@ -30,10 +30,10 @@ static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
 static void __do_fork (void *);
 
-//! À¯Àú ½ºÅÃ¿¡ ÆÄ½ÌµÈ ÅäÅ«À» ÀúÀåÇÏ´Â ÇÔ¼ö
+//! ìœ ì € ìŠ¤íƒì— íŒŒì‹±ëœ í† í°ì„ ì €ìž¥í•˜ëŠ” í•¨ìˆ˜
 void* argument_stack(char** parse, int count, void** esp);
 
-//! Ãß°¡ : ½ÇÇà ÁßÀÎ ÆÄÀÏÀÇ µ¥ÀÌÅÍ º¯°æÀ» ¿¹¹æÇÏ±â À§ÇÑ Àü¿ª lock ±¸Á¶Ã¼ ¸¸µê
+//! ì¶”ê°€ : ì‹¤í–‰ ì¤‘ì¸ íŒŒì¼ì˜ ë°ì´í„° ë³€ê²½ì„ ì˜ˆë°©í•˜ê¸° ìœ„í•œ ì „ì—­ lock êµ¬ì¡°ì²´ ë§Œë“¦
 struct lock file_exec_lock;
 
 
@@ -49,7 +49,7 @@ process_init (void) {
  * thread id, or TID_ERROR if the thread cannot be created.
  * Notice that THIS SHOULD BE CALLED ONCE. */
 tid_t
-process_create_initd (const char *file_name) { //! À¯ÀúÇÁ·Î±×·¥ ½ÇÇàÀ» À§ÇÑ ÁØºñ´Ü°è
+process_create_initd (const char *file_name) { //! ìœ ì €í”„ë¡œê·¸ëž¨ ì‹¤í–‰ì„ ìœ„í•œ ì¤€ë¹„ë‹¨ê³„
 	char *fn_copy;
 	tid_t tid;
 
@@ -60,11 +60,11 @@ process_create_initd (const char *file_name) { //! À¯ÀúÇÁ·Î±×·¥ ½ÇÇàÀ» À§ÇÑ ÁØºñ
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
 
-	//! Ãß°¡ : Ã¹¹øÂ° ÀÎÀÚ ÆÄ½Ì
+	//! ì¶”ê°€ : ì²«ë²ˆì§¸ ì¸ìž íŒŒì‹±
 	char* tmp;
 	file_name = strtok_r(file_name, " ", &tmp);
 	
-	lock_init(&file_exec_lock); //! Ãß°¡ file_exec_lockÀÇ ÃÊ±âÈ­¸¦ process_create_initd¿¡¼­ ÇØÁà¾ß °Ù´Ù°í »ý°¢ÇÔ (¾Æ´Ò¼öµµ)
+	lock_init(&file_exec_lock); //! ì¶”ê°€ file_exec_lockì˜ ì´ˆê¸°í™”ë¥¼ process_create_initdì—ì„œ í•´ì¤˜ì•¼ ê²Ÿë‹¤ê³  ìƒê°í•¨ (ì•„ë‹ìˆ˜ë„)
 	
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
@@ -75,7 +75,7 @@ process_create_initd (const char *file_name) { //! À¯ÀúÇÁ·Î±×·¥ ½ÇÇàÀ» À§ÇÑ ÁØºñ
 
 /* A thread function that launches first user process. */
 static void
-initd (void *f_name) {  // ! À¯Àú ÇÁ·Î±×·¥ ½ÇÇà
+initd (void *f_name) {  // ! ìœ ì € í”„ë¡œê·¸ëž¨ ì‹¤í–‰
 #ifdef VM
 	supplemental_page_table_init (&thread_current ()->spt);
 #endif
@@ -120,10 +120,10 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	bool writable;
 
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
-    //! Ãß°¡ : parent_page°¡ Ä¿³Î ¿µ¿ªÀÌ³Ä??
-    if(!is_user_vaddr(va)) return true; //! ¿Ö true¿©¾ß ÇÒ±î?
-    //! Ä¿³ÎÀÌ¸é, ±âº»ÀûÀ¸·Î ÀÌ¹Ì pte º¹»ç°¡ µÇÀÖ´Ù. 
-    //! ±×·¡¼­ ¹Ø¿¡ º¹»çÇÏ´Â °úÁ¤ÀÌ ÇÊ¿ä°¡ ¾ø´Ù. (¾î¤µç º¹Á¦µÈ °Ç ¸ÂÀ¸´Ï±î true)
+    //! ì¶”ê°€ : parent_pageê°€ ì»¤ë„ ì˜ì—­ì´ëƒ??
+    if(!is_user_vaddr(va)) return true; //! ì™œ trueì—¬ì•¼ í• ê¹Œ?
+    //! ì»¤ë„ì´ë©´, ê¸°ë³¸ì ìœ¼ë¡œ ì´ë¯¸ pte ë³µì‚¬ê°€ ë˜ìžˆë‹¤. 
+    //! ê·¸ëž˜ì„œ ë°‘ì— ë³µì‚¬í•˜ëŠ” ê³¼ì •ì´ í•„ìš”ê°€ ì—†ë‹¤. (ì–´ì©ƒë“  ë³µì œëœ ê±´ ë§žìœ¼ë‹ˆê¹Œ true)
 
 	/* 2. Resolve VA from the parent's page map level 4. */
 	parent_page = pml4_get_page (parent->pml4, va);
@@ -131,7 +131,7 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
-    //! Ãß°¡ : ÀÚ½Äµµ ¸Þ¸ð¸® ÇÒ´ç ¹Þ¾Æ¾ßÁö? ±Ùµ¥ À¯Àú¿µ¿ª¿¡ ¹ÞÀ»°Çµ­
+    //! ì¶”ê°€ : ìžì‹ë„ ë©”ëª¨ë¦¬ í• ë‹¹ ë°›ì•„ì•¼ì§€? ê·¼ë° ìœ ì €ì˜ì—­ì— ë°›ì„ê±´ëŽ…
     newpage = palloc_get_page(PAL_USER);
 
 	/* 4. TODO: Duplicate parent's page to the new page and
@@ -140,18 +140,18 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 
     memcpy(newpage, parent_page, PGSIZE);
 
-    //! Ãß°¡ : ÀÎÀÚ·Î ¹ÞÀº pte°¡ writable ÇÏ³Ä??
+    //! ì¶”ê°€ : ì¸ìžë¡œ ë°›ì€ pteê°€ writable í•˜ëƒ??
     writable = is_writable(pte);
 
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
-        //! ¿¡·¯ ÇÚµé¸µ! ÀÌ°Ô ¸ÂÀ»±î?
-        // palloc_free_page(newpage); //! Ãß°¡: pml4¸¦ set pageÇÏÁö ¸øÇßÀ»¶§ free ÇØÁÖ°í ³ª°¡¾ß ÇÔ._
-        //! ´Ù½Ã ÁÖ¼®Ã³¸®ÇÔ. ÀÌ°Å ÁÖ¼®ÇØµµ ÀßµÇ´Â°Å º¸´Ï ´Ù¸¥µ¥¼­ free¸¦ ÇØÁÖ³ªº½
-        //! ¾îµð¼­ freeÇÏ´ÂÁö´Â Ã£¾ÆºÁ¾ßÇÒµí;;
-        //todo ¾îµð¼­ freeÇØÁÙ±î?
+        //! ì—ëŸ¬ í•¸ë“¤ë§! ì´ê²Œ ë§žì„ê¹Œ?
+        // palloc_free_page(newpage); //! ì¶”ê°€: pml4ë¥¼ set pageí•˜ì§€ ëª»í–ˆì„ë•Œ free í•´ì£¼ê³  ë‚˜ê°€ì•¼ í•¨._
+        //! ë‹¤ì‹œ ì£¼ì„ì²˜ë¦¬í•¨. ì´ê±° ì£¼ì„í•´ë„ ìž˜ë˜ëŠ”ê±° ë³´ë‹ˆ ë‹¤ë¥¸ë°ì„œ freeë¥¼ í•´ì£¼ë‚˜ë´„
+        //! ì–´ë””ì„œ freeí•˜ëŠ”ì§€ëŠ” ì°¾ì•„ë´ì•¼í• ë“¯;;
+        //todo ì–´ë””ì„œ freeí•´ì¤„ê¹Œ?
         return false;
 	}
 	return true;
@@ -171,7 +171,7 @@ __do_fork (void *aux) {
 	struct intr_frame *parent_if;
 	bool succ = true;
 
-	//! parent_if ¿¡ ºÎ¸ð intr_frameÀ» °¡Á®¿Í¾ß ÇÏ´Âµ¥ parent->tfÀÏ±î ?? ¤¤¤¤
+	//! parent_if ì— ë¶€ëª¨ intr_frameì„ ê°€ì ¸ì™€ì•¼ í•˜ëŠ”ë° parent->tfì¼ê¹Œ ?? ã„´ã„´
     parent_if = &parent->fork_tf;
 
     /* 1. Read the cpu context to local stack. */
@@ -200,7 +200,7 @@ __do_fork (void *aux) {
 
     parent->success_fork = 1;
 
-    //! Ãß°¡ : ºÎ¸ð²¨ º¹»çÇØ¿Í!!! ¹¹¸¦?? ÆÄÀÏµéÀ»!!
+    //! ì¶”ê°€ : ë¶€ëª¨êº¼ ë³µì‚¬í•´ì™€!!! ë­ë¥¼?? íŒŒì¼ë“¤ì„!!
     for(int i = parent->next_fd; i > 0; i--){
         if(parent->fd_table[i]!= NULL ){
             current->fd_table[i] = file_duplicate(parent->fd_table[i]);
@@ -208,17 +208,17 @@ __do_fork (void *aux) {
     }
 
     current->next_fd = parent->next_fd;
-    //! Ãß°¡ : ÀÚ½ÄÀÌ ÇÏ´Âµ¿¾È ºÎ¸ð´Â µü ±â´Ù·Á!
+    //! ì¶”ê°€ : ìžì‹ì´ í•˜ëŠ”ë™ì•ˆ ë¶€ëª¨ëŠ” ë”± ê¸°ë‹¤ë ¤!
     sema_up(&parent->semaphore_fork);
 
 	process_init ();
 
 	/* Finally, switch to the newly created process. */
 	if (succ)
-        if_.R.rax = 0;  //! ÀÚ½ÄÀº 0 ¸®ÅÏ
+        if_.R.rax = 0;  //! ìžì‹ì€ 0 ë¦¬í„´
 		do_iret (&if_);
 error:
-    sema_up(&parent->semaphore_fork); //! Ãß°¡ : ERROR½Ã¿¡µµ ¼¼¸¶¾÷ÇØÁà¾ßÇÔ!!! 
+    sema_up(&parent->semaphore_fork); //! ì¶”ê°€ : ERRORì‹œì—ë„ ì„¸ë§ˆì—…í•´ì¤˜ì•¼í•¨!!! 
 	thread_exit ();
 }
 
@@ -226,9 +226,9 @@ error:
  * Returns -1 on fail. */
 int
 process_exec(void* f_name) {
-	// char* file_name = f_name; //! Àá±ñ Á¦°Å
+	// char* file_name = f_name; //! ìž ê¹ ì œê±°
     
-    char* file_name = palloc_get_page(0); //! palloc_get_page¿¡ ÀÎÀÚ¾È³Ñ°ÜÁà¼­ kernel¿¡¼­ ÇÒ´ç
+    char* file_name = palloc_get_page(0); //! palloc_get_pageì— ì¸ìžì•ˆë„˜ê²¨ì¤˜ì„œ kernelì—ì„œ í• ë‹¹
     memcpy(file_name, f_name, strlen(f_name)+1);
 	
     bool success;
@@ -248,7 +248,7 @@ process_exec(void* f_name) {
     // memcpy(file_name, new_file_name, sizeof f_name);
     // printf("------d----> %s <-----------\n",new_file_name);
 
-	//! ÅäÅ«È­ÇØ¼­ ¾Õ ÀÎÀÚ¸¦ loadÀÇ Ã¹¹øÂ° ÀÎÀÚ·Î ³Ö´Â´Ù.
+	//! í† í°í™”í•´ì„œ ì•ž ì¸ìžë¥¼ loadì˜ ì²«ë²ˆì§¸ ì¸ìžë¡œ ë„£ëŠ”ë‹¤.
 	char* tmp;
 	file_name = strtok_r(file_name, " ", &tmp);
 	/* And then load the binary */
@@ -258,17 +258,17 @@ process_exec(void* f_name) {
 
 	if (!success){
 #ifdef FORK
-		thread_current()->is_process_load = 0; //! ÀÌ°Ç ppt µû¶óÇÏ´Ù°¡ ...
+		thread_current()->is_process_load = 0; //! ì´ê±´ ppt ë”°ë¼í•˜ë‹¤ê°€ ...
 #endif
 		return -1;
 	}
 
 #ifdef FORK
-	thread_current()->is_process_load = 1; //! ÀÌ°Ç ppt µû¶óÇÏ´Ù°¡ ...
+	thread_current()->is_process_load = 1; //! ì´ê±´ ppt ë”°ë¼í•˜ë‹¤ê°€ ...
 #endif
-	//! ÀÎÀÚµéÀ» ½ºÅÃ¿¡ ¸ÕÀú ½×´Â´Ù.
+	//! ì¸ìžë“¤ì„ ìŠ¤íƒì— ë¨¼ì € ìŒ“ëŠ”ë‹¤.
 #ifdef FORK
-	sema_up(&thread_current()->semaphore_load); //! ÀÌ°Ç ppt µû¶óÇÏ´Ù°¡ ...
+	sema_up(&thread_current()->semaphore_load); //! ì´ê±´ ppt ë”°ë¼í•˜ë‹¤ê°€ ...
 #endif
 
 	char* parse[100];
@@ -280,23 +280,23 @@ process_exec(void* f_name) {
 		parse[i] = strtok_r(NULL, " ", &tmp);
 	}
 
-	//! Ãß°¡:
+	//! ì¶”ê°€:
 	_if.R.rsi = argument_stack(parse, i, &(_if.rsp));
 	_if.R.rdi = i;
 	// hex_dump(_if.rsp, _if.rsp, USER_STACK - _if.rsp, true);
-	//! USER_STACK °øºÎÀßÇÏ±â
+	//! USER_STACK ê³µë¶€ìž˜í•˜ê¸°
 	//! - - - - - -
     
 	palloc_free_page(file_name);
-        if(is_kernel_vaddr(f_name)){
+    if(is_kernel_vaddr(f_name)){
         palloc_free_page(f_name);
     }
-    //! ¾ê ³Ö¾îÀ¸¸é ´ÙÅÍÁü
-    //! ±Ùµ¥ f_nameÀº process_create_initd¿¡¼­ pallocÇß´Âµ¥
-    //! ¿¡·¯°¡ ¹ß»ýÇÏÁö¾Ê¾Æ¼­ freeµÇÁö¾ÊÀº»óÅÂ·Î §„³»·Á¿Í¼­
-    //! ¿©±â¼­ ÇÁ¸®ÇÒ·Á°íÇß´Âµ¥ ÅÍÁü ±×ÀÌÀ¯´Â ¸ð¸£°ÙÀ½ ³ªÁß¿¡ 
-    //! º¸±äºÁ¾ßÇÏÁö¸¸ Àß¸ð¸£°ÚÀ½ 
-    //todo ÁÖÀÇ±í°Ô ºÁ¾ßÇÔ
+    //! ì–˜ ë„£ì–´ìœ¼ë©´ ë‹¤í„°ì§
+    //! ê·¼ë° f_nameì€ process_create_initdì—ì„œ pallocí–ˆëŠ”ë°
+    //! ì—ëŸ¬ê°€ ë°œìƒí•˜ì§€ì•Šì•„ì„œ freeë˜ì§€ì•Šì€ìƒíƒœë¡œ ì­Šë‚´ë ¤ì™€ì„œ
+    //! ì—¬ê¸°ì„œ í”„ë¦¬í• ë ¤ê³ í–ˆëŠ”ë° í„°ì§ ê·¸ì´ìœ ëŠ” ëª¨ë¥´ê²ŸìŒ ë‚˜ì¤‘ì— 
+    //! ë³´ê¸´ë´ì•¼í•˜ì§€ë§Œ ìž˜ëª¨ë¥´ê² ìŒ 
+    //todo ì£¼ì˜ê¹Šê²Œ ë´ì•¼í•¨
 
 	/* Start switched process. */
 	do_iret(&_if);
@@ -304,7 +304,7 @@ process_exec(void* f_name) {
 }
 
 
-//! Ãß°¡
+//! ì¶”ê°€
 void*
 argument_stack(char** parse, int argc, void** rsp) {
 	ASSERT(argc >= 0);
@@ -370,13 +370,13 @@ process_wait(tid_t child_tid UNUSED) {
 #endif
 
 #ifdef WAIT
-	struct thread* child_thread = get_child_process(child_tid); //!  ÀÚ½Ä ÇÁ·Î¼¼½ºÀÇ ÇÁ·Î¼¼½º µð½ºÅ©¸³ÅÍ °Ë»ö
+	struct thread* child_thread = get_child_process(child_tid); //!  ìžì‹ í”„ë¡œì„¸ìŠ¤ì˜ í”„ë¡œì„¸ìŠ¤ ë””ìŠ¤í¬ë¦½í„° ê²€ìƒ‰
 	
     if (child_thread == NULL) {
-		return -1; //! ¿¹¿Ü Ã³¸® ¹ß»ý½Ã -1 ¸®ÅÏ
+		return -1; //! ì˜ˆì™¸ ì²˜ë¦¬ ë°œìƒì‹œ -1 ë¦¬í„´
 	}
 
-	sema_down(&child_thread->semaphore_exit); //! ÀÚ½ÄÇÁ·Î¼¼½º°¡ Á¾·áµÉ ¶§±îÁö ºÎ¸ð ÇÁ·Î¼¼½º ´ë±â(¼¼¸¶Æ÷¾î ÀÌ¿ë)
+	sema_down(&child_thread->semaphore_exit); //! ìžì‹í”„ë¡œì„¸ìŠ¤ê°€ ì¢…ë£Œë  ë•Œê¹Œì§€ ë¶€ëª¨ í”„ë¡œì„¸ìŠ¤ ëŒ€ê¸°(ì„¸ë§ˆí¬ì–´ ì´ìš©)
 	
 	int temp;
 
@@ -385,8 +385,8 @@ process_wait(tid_t child_tid UNUSED) {
 	else
 		temp = child_thread->exit_status;
 
-	remove_child_process(child_thread); //!  ÀÚ½Ä ÇÁ·Î¼¼½º µð½ºÅ©¸³ÅÍ »èÁ¦
-	return temp; //!  ÀÚ½Ä ÇÁ·Î¼¼½ºÀÇ exit status ¸®ÅÏ
+	remove_child_process(child_thread); //!  ìžì‹ í”„ë¡œì„¸ìŠ¤ ë””ìŠ¤í¬ë¦½í„° ì‚­ì œ
+	return temp; //!  ìžì‹ í”„ë¡œì„¸ìŠ¤ì˜ exit status ë¦¬í„´
 #endif
 }
 
@@ -404,11 +404,11 @@ process_exit(void) {
 	// printf("%s: exit(%d)\n", curr->name, curr->exit_status);
 
 
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍ Å×ÀÌºíÀÇ ÃÖ´ë°ªÀ» ÀÌ¿ëÇØ ÆÄÀÏ µð½ºÅ©¸³ÅÍ
-	   ÀÇ ÃÖ¼Ò°ªÀÎ 2°¡ µÉ ¶§±îÁö ÆÄÀÏÀ» ´ÝÀ½ */
-	   /* ÆÄÀÏ µð½ºÅ©¸³ÅÍ Å×ÀÌºí ¸Þ¸ð¸® ÇØÁ¦ */
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° í…Œì´ë¸”ì˜ ìµœëŒ€ê°’ì„ ì´ìš©í•´ íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°
+	   ì˜ ìµœì†Œê°’ì¸ 2ê°€ ë  ë•Œê¹Œì§€ íŒŒì¼ì„ ë‹«ìŒ */
+	   /* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° í…Œì´ë¸” ë©”ëª¨ë¦¬ í•´ì œ */
 
-	/* ÇÁ·Î¼¼½º¿¡ ¿­¸° ¸ðµç ÆÄÀÏÀ» ´ÝÀ½ */
+	/* í”„ë¡œì„¸ìŠ¤ì— ì—´ë¦° ëª¨ë“  íŒŒì¼ì„ ë‹«ìŒ */
 	for (int i = 2; i < curr->next_fd; i++){
 		if(curr->fd_table[i] != NULL){
 			process_close_file(i);
@@ -416,16 +416,16 @@ process_exit(void) {
 		else {}
 	}
 
-    palloc_free_page(curr->fd_table); //! Ãß°¡ : ÅõÆ÷ÀÎÅÍ·Î ¼±¾ðÇÑ fd table pallocÇÑ°É 
-    //! process_exit¿¡¼­ freeÇØÁØ´Ù (¿Ö³Ä¸é ¹«Á¶°Ç ¾î¶² ¹æ½ÄÀ¸·Îµç ÇÁ·Î±×·¥ Á¾·á½Ã ¿©±â¸¦ °ÅÄ¡±â ¶§¹®)
+    palloc_free_page(curr->fd_table); //! ì¶”ê°€ : íˆ¬í¬ì¸í„°ë¡œ ì„ ì–¸í•œ fd table pallocí•œê±¸ 
+    //! process_exitì—ì„œ freeí•´ì¤€ë‹¤ (ì™œëƒë©´ ë¬´ì¡°ê±´ ì–´ë–¤ ë°©ì‹ìœ¼ë¡œë“  í”„ë¡œê·¸ëž¨ ì¢…ë£Œì‹œ ì—¬ê¸°ë¥¼ ê±°ì¹˜ê¸° ë•Œë¬¸)
     
 
 	process_cleanup();
-	//! load ¸¶Áö¸· (goto¿¡¼­ doneÀ¸·Î °£ ºÎºÐ)¿¡¼­ file_closeÇÑ°É ÀÌÇÔ¼ö ³¡ºÎºÐ¿¡
-	//! cleanup ¹Ø¿¡´Ù°¡ Ãß°¡ÇØº½
-	file_close(thread_current()->file_exec); //! Ãß°¡ : rox ¶§¹®
+	//! load ë§ˆì§€ë§‰ (gotoì—ì„œ doneìœ¼ë¡œ ê°„ ë¶€ë¶„)ì—ì„œ file_closeí•œê±¸ ì´í•¨ìˆ˜ ëë¶€ë¶„ì—
+	//! cleanup ë°‘ì—ë‹¤ê°€ ì¶”ê°€í•´ë´„
+	file_close(thread_current()->file_exec); //! ì¶”ê°€ : rox ë•Œë¬¸
 
-	sema_up(&curr->semaphore_exit); //! ºÎ¸ðÇÁ·Î¼¼½ºÀÇ ´ë±â »óÅÂ ÀÌÅ»(¼¼¸¶Æ÷¾î ÀÌ¿ë)
+	sema_up(&curr->semaphore_exit); //! ë¶€ëª¨í”„ë¡œì„¸ìŠ¤ì˜ ëŒ€ê¸° ìƒíƒœ ì´íƒˆ(ì„¸ë§ˆí¬ì–´ ì´ìš©)
 }
 
 /* Free the current process's resources. */
@@ -466,17 +466,17 @@ process_activate (struct thread *next) {
 	tss_update (next);
 }
 
-//! Ãß°¡ÇÑ ÇÔ¼ö
+//! ì¶”ê°€í•œ í•¨ìˆ˜
 int process_add_file(struct file* f)
 {
-	/* ÆÄÀÏ °´Ã¼¸¦ ÆÄÀÏ µð½ºÅ©¸³ÅÍ Å×ÀÌºí¿¡ Ãß°¡
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍÀÇ ÃÖ´ë°ª 1 Áõ°¡ */
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍ ¸®ÅÏ */
+	/* íŒŒì¼ ê°ì²´ë¥¼ íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° í…Œì´ë¸”ì— ì¶”ê°€
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ì˜ ìµœëŒ€ê°’ 1 ì¦ê°€ */
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° ë¦¬í„´ */
 	if (f == NULL) return -1;
 
 	struct thread* curr = thread_current();
 
-    //! Ãß°¡ : oom À» À§ÇØ Ãß°¡
+    //! ì¶”ê°€ : oom ì„ ìœ„í•´ ì¶”ê°€
     if(curr->next_fd >= 126)
     {
         file_close(f);
@@ -490,46 +490,46 @@ int process_add_file(struct file* f)
 	return fd;
 }
 
-//! Ãß°¡ÇÑ ÇÔ¼ö
+//! ì¶”ê°€í•œ í•¨ìˆ˜
 struct file* process_get_file(int fd)
 {
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍ¿¡ ÇØ´çÇÏ´Â ÆÄÀÏ °´Ã¼¸¦ ¸®ÅÏ */
-	/* ¾øÀ» ½Ã NULL ¸®ÅÏ */
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ì— í•´ë‹¹í•˜ëŠ” íŒŒì¼ ê°ì²´ë¥¼ ë¦¬í„´ */
+	/* ì—†ì„ ì‹œ NULL ë¦¬í„´ */
 	struct thread* curr = thread_current();
 	// struct file* f = curr->fd_table[fd];
 	// if(curr->fd_table[fd]) return curr->fd_table[fd];
 
-	//! fd<=1 À» •ûÁØÀÌÀ¯´Â stdin stdoutÀÌ Á¦´ë·ÎÀÛµ¿ÇÏ´Âµ¥µµ
-	//! ¿©±â¼­ °É·¯Áö¸é ¹®Á¦°¡»ý±æ±îºÁ ÀÏ´Ü ÁÖ¼®Ã³¸®ÇØµÒ
+	//! fd<=1 ì„ ëº´ì¤€ì´ìœ ëŠ” stdin stdoutì´ ì œëŒ€ë¡œìž‘ë™í•˜ëŠ”ë°ë„
+	//! ì—¬ê¸°ì„œ ê±¸ëŸ¬ì§€ë©´ ë¬¸ì œê°€ìƒê¸¸ê¹Œë´ ì¼ë‹¨ ì£¼ì„ì²˜ë¦¬í•´ë‘ 
 	if (fd <= 1 || fd >= curr->next_fd) return NULL;
 	// if (fd >= curr->next_fd) return NULL;
 	else return curr->fd_table[fd];
 }
 
-//! Ãß°¡ÇÑ ÇÔ¼ö
+//! ì¶”ê°€í•œ í•¨ìˆ˜
 void process_close_file(int fd)
 {
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍ¿¡ ÇØ´çÇÏ´Â ÆÄÀÏÀ» ´ÝÀ½ */
-	/* ÆÄÀÏ µð½ºÅ©¸³ÅÍ Å×ÀÌºí ÇØ´ç ¿£Æ®¸® ÃÊ±âÈ­ */
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ì— í•´ë‹¹í•˜ëŠ” íŒŒì¼ì„ ë‹«ìŒ */
+	/* íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° í…Œì´ë¸” í•´ë‹¹ ì—”íŠ¸ë¦¬ ì´ˆê¸°í™” */
 	struct thread* curr = thread_current();
-	//! fd<=1 À» •ûÁØÀÌÀ¯´Â stdin stdoutÀÌ Á¦´ë·ÎÀÛµ¿ÇÏ´Âµ¥µµ
-	//! ¿©±â¼­ °É·¯Áö¸é ¹®Á¦°¡»ý±æ±îºÁ ÀÏ´Ü ÁÖ¼®Ã³¸®ÇØµÒ
+	//! fd<=1 ì„ ëº´ì¤€ì´ìœ ëŠ” stdin stdoutì´ ì œëŒ€ë¡œìž‘ë™í•˜ëŠ”ë°ë„
+	//! ì—¬ê¸°ì„œ ê±¸ëŸ¬ì§€ë©´ ë¬¸ì œê°€ìƒê¸¸ê¹Œë´ ì¼ë‹¨ ì£¼ì„ì²˜ë¦¬í•´ë‘ 
 	if (fd <= 1 || fd >= curr->next_fd) return;
 	// if (fd >= curr->next_fd) return;
 
-	file_close(curr->fd_table[fd]); //! oom Ãß°¡: ¿Ö ¾ê´Â ÁÖ¼® Ã³¸®µÇÀÖ¾úÁö?
+	file_close(curr->fd_table[fd]); //! oom ì¶”ê°€: ì™œ ì–˜ëŠ” ì£¼ì„ ì²˜ë¦¬ë˜ìžˆì—ˆì§€?
 	curr->fd_table[fd] = NULL;
 }
 
 
 
-//! Ãß°¡
+//! ì¶”ê°€
 struct thread* get_child_process(int pid)
 {
 
-	/* ÀÚ½Ä ¸®½ºÆ®¿¡ Á¢±ÙÇÏ¿© ÇÁ·Î¼¼½º µð½ºÅ©¸³ÅÍ °Ë»ö */
-	/* ÇØ´ç pid°¡ Á¸ÀçÇÏ¸é ÇÁ·Î¼¼½º µð½ºÅ©¸³ÅÍ ¹ÝÈ¯ */
-	/* ¸®½ºÆ®¿¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é NULL ¸®ÅÏ */
+	/* ìžì‹ ë¦¬ìŠ¤íŠ¸ì— ì ‘ê·¼í•˜ì—¬ í”„ë¡œì„¸ìŠ¤ ë””ìŠ¤í¬ë¦½í„° ê²€ìƒ‰ */
+	/* í•´ë‹¹ pidê°€ ì¡´ìž¬í•˜ë©´ í”„ë¡œì„¸ìŠ¤ ë””ìŠ¤í¬ë¦½í„° ë°˜í™˜ */
+	/* ë¦¬ìŠ¤íŠ¸ì— ì¡´ìž¬í•˜ì§€ ì•Šìœ¼ë©´ NULL ë¦¬í„´ */
 
 	struct list_elem* e = list_begin(&thread_current()->child);
 	struct thread* e_thread;
@@ -543,7 +543,7 @@ struct thread* get_child_process(int pid)
 	return NULL;
 }
 
-//! Ãß°¡
+//! ì¶”ê°€
 void remove_child_process(struct thread* cp) {
 	list_remove(&cp->child_elem);
 	palloc_free_page((void *)cp);
@@ -627,7 +627,7 @@ load (const char *file_name, struct intr_frame *if_) {
 	
 	process_activate (thread_current ());
 
-	//! Ãß°¡ : ¶ô È¹µæ
+	//! ì¶”ê°€ : ë½ íšë“
 	lock_acquire(&file_exec_lock);
 	/* Open executable file. */
 	file = filesys_open (file_name);
@@ -638,9 +638,9 @@ load (const char *file_name, struct intr_frame *if_) {
 	}
 
 
-	//! Ãß°¡ :  thread ±¸Á¶Ã¼ÀÇ run_fileÀ» ÇöÀç ½ÇÇàÇÒ ÆÄÀÏ·Î ÃÊ±âÈ­ ÈÄ
-	//! file_deny_write()¸¦ ÀÌ¿ëÇÏ¿© ÆÄÀÏ¿¡ ´ëÇÑ write¸¦ °ÅºÎ ÈÄ
-	//! ¶ô ÇØÁ¦
+	//! ì¶”ê°€ :  thread êµ¬ì¡°ì²´ì˜ run_fileì„ í˜„ìž¬ ì‹¤í–‰í•  íŒŒì¼ë¡œ ì´ˆê¸°í™” í›„
+	//! file_deny_write()ë¥¼ ì´ìš©í•˜ì—¬ íŒŒì¼ì— ëŒ€í•œ writeë¥¼ ê±°ë¶€ í›„
+	//! ë½ í•´ì œ
 	thread_current()->file_exec = file; 
 	file_deny_write(thread_current()->file_exec);
 	lock_release(&file_exec_lock);
@@ -733,9 +733,9 @@ load (const char *file_name, struct intr_frame *if_) {
 
 done:
 	/* We arrive here whether the load is successful or not. */
-	// file_close (file); //! Àá½Ã ÁÖ¼®, process_exit¿¡¼­ ´ÝÀ»°ÅÀÓ
-    //! ¿©±â¼­ ´ÝÀ¸¸é done ‰çÀ»¶§¸¸ ´Ý±â ¶§¹®¿¡ process_exit¿¡¼­ ´ÝÀ¸¸é
-    //! ¿¡·¯ ³µÀ»¶§µµ ´ÝÀ» ¼ö ÀÖ´Ù. (rox ¹®Á¦ ÇØ°áÀ§ÇÔ)
+	// file_close (file); //! ìž ì‹œ ì£¼ì„, process_exitì—ì„œ ë‹«ì„ê±°ìž„
+    //! ì—¬ê¸°ì„œ ë‹«ìœ¼ë©´ done ë¬ì„ë•Œë§Œ ë‹«ê¸° ë•Œë¬¸ì— process_exitì—ì„œ ë‹«ìœ¼ë©´
+    //! ì—ëŸ¬ ë‚¬ì„ë•Œë„ ë‹«ì„ ìˆ˜ ìžˆë‹¤. (rox ë¬¸ì œ í•´ê²°ìœ„í•¨)
 	return success;
 }
 

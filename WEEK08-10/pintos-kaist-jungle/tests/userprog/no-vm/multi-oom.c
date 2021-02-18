@@ -44,7 +44,7 @@ int make_children (void);
 static void
 consume_some_resources (void)
 {
-//   printf("자식이 여기들어 왔다!\n");
+//   printf("�옄�떇�씠 �뿬湲곕뱾�뼱 �솕�떎!\n");
 
   int fd, fdmax = 126;
 
@@ -132,7 +132,7 @@ make_children (void) {
     if (pid < 0) {
       exit (i);
     } else if (pid == 0) {
-    //   printf("자식이 여기들어왔니?\n");
+    //   printf("�옄�떇�씠 �뿬湲곕뱾�뼱�솕�땲?\n");
       consume_some_resources();
     } else {
       break;

@@ -28,7 +28,7 @@
 		 that are ready to run but not actually running. */
 static  ready_list;
 
-//! Ãß°¡ : THREAD_BLOCKED »óÅÂÀÇ ½º·¹µå¸¦ °ü¸®ÇÏ±â À§ÇÑ ¸®½ºÆ® ÀÚ·á ±¸Á¶ Ãß°¡
+//! ì¶”ê°€ : THREAD_BLOCKED ìƒíƒœì˜ ìŠ¤ë ˆë“œë¥¼ ê´€ë¦¬í•˜ê¸° ìœ„í•œ ë¦¬ìŠ¤íŠ¸ ìžë£Œ êµ¬ì¡° ì¶”ê°€
 static struct list sleep_queue;
 
 /* Idle thread. */
@@ -48,7 +48,7 @@ static long long idle_ticks;    /* # of timer ticks spent idle. */
 static long long kernel_ticks;  /* # of timer ticks in kernel threads. */
 static long long user_ticks;    /* # of timer ticks in user programs. */
 
-//! Ãß°¡ :  sleep_list ¿¡¼­ ´ë±âÁßÀÎ ½º·¹µåµéÀÇ wakeup_tick °ª Áß ÃÖ¼Ò°ªÀ» ÀúÀåÇÏ±âÀ§ÇÑ º¯¼ö Ãß°¡
+//! ì¶”ê°€ :  sleep_list ì—ì„œ ëŒ€ê¸°ì¤‘ì¸ ìŠ¤ë ˆë“œë“¤ì˜ wakeup_tick ê°’ ì¤‘ ìµœì†Œê°’ì„ ì €ìž¥í•˜ê¸°ìœ„í•œ ë³€ìˆ˜ ì¶”ê°€
 static long long next_tick_to_awake;
 
 /* Scheduling. */
@@ -96,12 +96,12 @@ static uint64_t gdt[3] = { 0, 0x00af9a000000ffff, 0x00cf92000000ffff };
    It is not safe to call thread_current() until this function
    finishes. */
 
-   //! -----------------> priority °úÁ¦¸¦ À§ÇÑ ÇÔ¼öµé start <---------------------
+   //! -----------------> priority ê³¼ì œë¥¼ ìœ„í•œ í•¨ìˆ˜ë“¤ start <---------------------
 
-   //! Ãß°¡ : list_insert_ordered() ÇÔ¼ö¿¡¼­ »ç¿ë ÇÏ±â À§ÇØ Á¤·Ä ¹æ¹ýÀ» °áÁ¤ÇÏ±â À§ÇÑ ÇÔ¼ö ÀÛ¼º
+   //! ì¶”ê°€ : list_insert_ordered() í•¨ìˆ˜ì—ì„œ ì‚¬ìš© í•˜ê¸° ìœ„í•´ ì •ë ¬ ë°©ë²•ì„ ê²°ì •í•˜ê¸° ìœ„í•œ í•¨ìˆ˜ ìž‘ì„±
 bool
 cmp_priority(const struct list_elem* a, const struct list_elem* b, void* aux UNUSED) {
-	//! Ã¹¹øÂ° ÀÎÀÚÀÇ ¿ì¼±¼øÀ§°¡ ³ôÀ¸¸é 1À» ¹ÝÈ¯, ±×·¸Áö ¾ÊÀ¸¸é 0À» ¹ÝÈ¯
+	//! ì²«ë²ˆì§¸ ì¸ìžì˜ ìš°ì„ ìˆœìœ„ê°€ ë†’ìœ¼ë©´ 1ì„ ë°˜í™˜, ê·¸ë ‡ì§€ ì•Šìœ¼ë©´ 0ì„ ë°˜í™˜
 	struct thread* a_thread = list_entry(a, struct thread, elem);
 	struct thread* b_thread = list_entry(b, struct thread, elem);
 
@@ -116,9 +116,9 @@ cmp_priority(const struct list_elem* a, const struct list_elem* b, void* aux UNU
 void
 test_max_priority(void)
 {
-	//! ready_list¿¡¼­ ¿ì¼±¼øÀ§°¡ °¡Àå ³ôÀº ½º·¹µå¿Í ÇöÀç ½º·¹µåÀÇ
-	//! ¿ì¼±¼øÀ§¸¦ ºñ±³ÇÏ¿© ½ºÄÉÁÙ¸µ ÇÑ´Ù.
-	//!(ready_list °¡ ºñ¾îÀÖÁö ¾ÊÀºÁö È®ÀÎÇÏ±â)
+	//! ready_listì—ì„œ ìš°ì„ ìˆœìœ„ê°€ ê°€ìž¥ ë†’ì€ ìŠ¤ë ˆë“œì™€ í˜„ìž¬ ìŠ¤ë ˆë“œì˜
+	//! ìš°ì„ ìˆœìœ„ë¥¼ ë¹„êµí•˜ì—¬ ìŠ¤ì¼€ì¤„ë§ í•œë‹¤.
+	//!(ready_list ê°€ ë¹„ì–´ìžˆì§€ ì•Šì€ì§€ í™•ì¸í•˜ê¸°)
 
 	if (!list_empty(&ready_list)) {
 		if (cmp_priority(list_begin(&ready_list), &thread_current()->elem, NULL)) {
@@ -130,12 +130,12 @@ test_max_priority(void)
 //!---------> donate < ---------
 
 
-//! Ãß°¡ :  priority donation À» ¼öÇàÇÏ´Â ÇÔ¼ö¸¦ ±¸ÇöÇÑ´Ù.
+//! ì¶”ê°€ :  priority donation ì„ ìˆ˜í–‰í•˜ëŠ” í•¨ìˆ˜ë¥¼ êµ¬í˜„í•œë‹¤.
 void
 donate_priority(void)
 {
-	//! ÇöÀç ½º·¹µå°¡ ±â´Ù¸®°í ÀÖ´Â lock °ú ¿¬°á µÈ ¸ðµç ½º·¹µåµéÀ» ¼øÈ¸ÇÏ¸ç
-	//! ÇöÀç ½º·¹µåÀÇ ¿ì¼±¼øÀ§¸¦ lock À» º¸À¯ÇÏ°í ÀÖ´Â ½º·¹µå¿¡°Ô ±âºÎ ÇÑ´Ù
+	//! í˜„ìž¬ ìŠ¤ë ˆë“œê°€ ê¸°ë‹¤ë¦¬ê³  ìžˆëŠ” lock ê³¼ ì—°ê²° ëœ ëª¨ë“  ìŠ¤ë ˆë“œë“¤ì„ ìˆœíšŒí•˜ë©°
+	//! í˜„ìž¬ ìŠ¤ë ˆë“œì˜ ìš°ì„ ìˆœìœ„ë¥¼ lock ì„ ë³´ìœ í•˜ê³  ìžˆëŠ” ìŠ¤ë ˆë“œì—ê²Œ ê¸°ë¶€ í•œë‹¤
 	struct thread* thread = thread_current()->wait_on_lock->holder;
 	while (thread != NULL) {
 		if (thread->priority < thread_current()->priority) {
@@ -149,15 +149,15 @@ donate_priority(void)
 	}
 }
 
-//! Ãß°¡ :  lock À» ÇØÁö ÇßÀ»¶§ donations ¸®½ºÆ®¿¡¼­ ÇØ´ç ¿£Æ®¸®¸¦
-//!			»èÁ¦ ÇÏ±â À§ÇÑ ÇÔ¼ö¸¦ ±¸ÇöÇÑ´Ù.
+//! ì¶”ê°€ :  lock ì„ í•´ì§€ í–ˆì„ë•Œ donations ë¦¬ìŠ¤íŠ¸ì—ì„œ í•´ë‹¹ ì—”íŠ¸ë¦¬ë¥¼
+//!			ì‚­ì œ í•˜ê¸° ìœ„í•œ í•¨ìˆ˜ë¥¼ êµ¬í˜„í•œë‹¤.
 void
 remove_with_lock(struct lock* lock)
 {
 	struct list_elem* e = list_begin(&thread_current()->donations);
 
-	//! ÇöÀç ½º·¹µåÀÇ donations ¸®½ºÆ®¸¦ È®ÀÎÇÏ¿© ÇØÁö ÇÒ lockÀ» º¸À¯ÇÏ°í ÀÖ´Â
-	//! ¿£Æ®¸®¸¦ »èÁ¦ÇÑ´Ù
+	//! í˜„ìž¬ ìŠ¤ë ˆë“œì˜ donations ë¦¬ìŠ¤íŠ¸ë¥¼ í™•ì¸í•˜ì—¬ í•´ì§€ í•  lockì„ ë³´ìœ í•˜ê³  ìžˆëŠ”
+	//! ì—”íŠ¸ë¦¬ë¥¼ ì‚­ì œí•œë‹¤
 	while (e != list_end(&thread_current()->donations)) {
 		if (list_entry(e, struct thread, donation_elem)->wait_on_lock == lock) {
 			e = list_remove(e);
@@ -168,12 +168,12 @@ remove_with_lock(struct lock* lock)
 }
 
 
-//! Ãß°¡ : ½º·¹µåÀÇ ¿ì¼±¼øÀ§°¡ º¯°æ µÇ¾úÀ» ¶§ donation À» °í·ÁÇÏ¿©
-//!			¿ì¼±¼øÀ§¸¦ ´Ù½Ã °áÁ¤ ÇÏ´Â ÇÔ¼ö¸¦ ÀÛ¼º ÇÑ´Ù
+//! ì¶”ê°€ : ìŠ¤ë ˆë“œì˜ ìš°ì„ ìˆœìœ„ê°€ ë³€ê²½ ë˜ì—ˆì„ ë•Œ donation ì„ ê³ ë ¤í•˜ì—¬
+//!			ìš°ì„ ìˆœìœ„ë¥¼ ë‹¤ì‹œ ê²°ì • í•˜ëŠ” í•¨ìˆ˜ë¥¼ ìž‘ì„± í•œë‹¤
 void
 refresh_priority(void)
 {
-	//! ÇöÀç ½º·¹µåÀÇ ¿ì¼±¼øÀ§¸¦ ±âºÎ ¹Þ±â ÀüÀÇ ¿ì¼±¼øÀ§·Î º¯°æ
+	//! í˜„ìž¬ ìŠ¤ë ˆë“œì˜ ìš°ì„ ìˆœìœ„ë¥¼ ê¸°ë¶€ ë°›ê¸° ì „ì˜ ìš°ì„ ìˆœìœ„ë¡œ ë³€ê²½
 	thread_current()->priority = thread_current()->init_priority;
 
 	if (!list_empty(&thread_current()->donations)) {
@@ -186,13 +186,13 @@ refresh_priority(void)
 }
 
 
-//! -----------------> priority °úÁ¦¸¦ À§ÇÑ ÇÔ¼öµé end <---------------------
+//! -----------------> priority ê³¼ì œë¥¼ ìœ„í•œ í•¨ìˆ˜ë“¤ end <---------------------
 
 
 
-//! -----------------> alarm °úÁ¦¸¦ À§ÇÑ ÇÔ¼öµé start <---------------------
+//! -----------------> alarm ê³¼ì œë¥¼ ìœ„í•œ í•¨ìˆ˜ë“¤ start <---------------------
 
-//! Ãß°¡ : ±ú¿ö¾ß ÇÒ ½º·¹µåÁß °¡Àå ÀÛÀº tickÀ» next_tick_to_awake°¡ °®µµ·Ï ¾÷µ¥ÀÌÆ® ÇÑ´Ù */
+//! ì¶”ê°€ : ê¹¨ì›Œì•¼ í•  ìŠ¤ë ˆë“œì¤‘ ê°€ìž¥ ìž‘ì€ tickì„ next_tick_to_awakeê°€ ê°–ë„ë¡ ì—…ë°ì´íŠ¸ í•œë‹¤ */
 void
 update_next_tick_to_awake(int64_t ticks) {
 	if (next_tick_to_awake > ticks) {
@@ -200,14 +200,14 @@ update_next_tick_to_awake(int64_t ticks) {
 	}
 }
 
-//! Ãß°¡ : °¡Àå ¸ÕÀú ÀÏ¾î³ª¾ßÇÒ ½º·¹µåÀÇ tickÀ» °¡Á®¿È
+//! ì¶”ê°€ : ê°€ìž¥ ë¨¼ì € ì¼ì–´ë‚˜ì•¼í•  ìŠ¤ë ˆë“œì˜ tickì„ ê°€ì ¸ì˜´
 int64_t
 get_next_tick_to_awake(void) {
 	return next_tick_to_awake;
 }
 
 
-//! Ãß°¡ : ÀÎÀÚ·Î µé¾î¿Â ticks ±îÁö Àç¿ï »ý°¢ÀÌ¾ß.
+//! ì¶”ê°€ : ì¸ìžë¡œ ë“¤ì–´ì˜¨ ticks ê¹Œì§€ ìž¬ìš¸ ìƒê°ì´ì•¼.
 void
 thread_sleep(int64_t ticks) {
 	//printf("thread_sleep4\n");
@@ -215,38 +215,38 @@ thread_sleep(int64_t ticks) {
 
 	enum intr_level old_level;
 	old_level = intr_disable();
-	//! ¾Æ·¡ °úÁ¤ Áß¿¡´Â ÀÎÅÍ·´Æ®¸¦ ¹Þ¾ÆµéÀÌÁö ¾Ê´Â´Ù.
-	//! ´Ù¸¸ ³ªÁß¿¡ ´Ù½Ã ¹Þ¾ÆµéÀÌ±â À§ÇØ old_level¿¡ ÀÌÀü ÀÎÅÍ·´Æ® »óÅÂ¸¦ ´ã¾ÆµÐ´Ù.
+	//! ì•„ëž˜ ê³¼ì • ì¤‘ì—ëŠ” ì¸í„°ëŸ½íŠ¸ë¥¼ ë°›ì•„ë“¤ì´ì§€ ì•ŠëŠ”ë‹¤.
+	//! ë‹¤ë§Œ ë‚˜ì¤‘ì— ë‹¤ì‹œ ë°›ì•„ë“¤ì´ê¸° ìœ„í•´ old_levelì— ì´ì „ ì¸í„°ëŸ½íŠ¸ ìƒíƒœë¥¼ ë‹´ì•„ë‘”ë‹¤.
 
 	curr = thread_current();
-	//! ÇöÀçÀÇ thread ÁÖ¼Ò¸¦ °¡Á®¿Â´Ù.
+	//! í˜„ìž¬ì˜ thread ì£¼ì†Œë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 
 	ASSERT(curr != idle_thread);
-	//! ÇöÀçÀÇ thread°¡ À¯ÈÞ thread°¡ ¾Æ´Ï¾î¾ß ÇÑ´Ù. 
+	//! í˜„ìž¬ì˜ threadê°€ ìœ íœ´ threadê°€ ì•„ë‹ˆì–´ì•¼ í•œë‹¤. 
 
 	curr->wakeup_tick = ticks;
 	//printf("sleep ticks : %d", ticks);
-	//! ÇöÀçÀÇ threadÀÇ wakeup_ticks¿¡ ÀÎÀÚ·Î µé¾î¿Â ticks¸¦ ÀúÀå
+	//! í˜„ìž¬ì˜ threadì˜ wakeup_ticksì— ì¸ìžë¡œ ë“¤ì–´ì˜¨ ticksë¥¼ ì €ìž¥
 
 	update_next_tick_to_awake(ticks);
-	//! next_tick_to_awake ¸¦ ¾÷µ¥ÀÌÆ®!
+	//! next_tick_to_awake ë¥¼ ì—…ë°ì´íŠ¸!
 
 	list_push_back(&sleep_queue, &(curr->elem));
 	//printf("\nsleep : %p\n sleep_que_end : %p\n\n", &curr->elem, list_end(&sleep_queue)->prev);
-	//! sleep_queue¿¡ ÇöÀç ½º·¹µåÀÇ elemÀ» Çª½¬
+	//! sleep_queueì— í˜„ìž¬ ìŠ¤ë ˆë“œì˜ elemì„ í‘¸ì‰¬
 
 	thread_block();
-	//! ÇöÀç thread¸¦ block ½ÃÅ°ÀÚ
+	//! í˜„ìž¬ threadë¥¼ block ì‹œí‚¤ìž
 
 	intr_set_level(old_level);
-	//! ´Ù½Ã ½ºÄÉÁÙÇÏ·¯ °¥ ¼ö ÀÖ°Ô ¸¸µé¾îµÎ±â(ÀÎÅÍ·´Æ® ´çÇÒ ¼ö ÀÖ°Ô)
+	//! ë‹¤ì‹œ ìŠ¤ì¼€ì¤„í•˜ëŸ¬ ê°ˆ ìˆ˜ ìžˆê²Œ ë§Œë“¤ì–´ë‘ê¸°(ì¸í„°ëŸ½íŠ¸ ë‹¹í•  ìˆ˜ ìžˆê²Œ)
 }
 
 
-//! Ãß°¡ : ÀÎÀÚ·Î µé¾î¿Â ÇöÀçÀÇ ticks º¸´Ù ÀÛ°Å³ª °°Àº thread¸¦ ±ú¿ï°Å¾ß
+//! ì¶”ê°€ : ì¸ìžë¡œ ë“¤ì–´ì˜¨ í˜„ìž¬ì˜ ticks ë³´ë‹¤ ìž‘ê±°ë‚˜ ê°™ì€ threadë¥¼ ê¹¨ìš¸ê±°ì•¼
 void
 thread_awake(int64_t ticks) {
-	next_tick_to_awake = INT64_MAX; //! next_tick_to_awake ÃÊ±âÈ­
+	next_tick_to_awake = INT64_MAX; //! next_tick_to_awake ì´ˆê¸°í™”
 	//printf("thread_awake3 : ticks : %d\n", ticks);
 	struct list_elem* curr_elem = list_begin(&sleep_queue);
 	struct thread* curr_thread;
@@ -255,8 +255,8 @@ thread_awake(int64_t ticks) {
 
 		if (curr_thread->wakeup_tick <= ticks) {
 			//printf("wakeup_tick : %d \n", curr_thread->wakeup_tick);
-			curr_elem = list_remove(curr_elem);   //! ¼ø¼­Áß¿ä
-			thread_unblock(curr_thread);		//! À§¿Í ¼ø¼­ ¹Ù²Ù¸é Æ²¸²
+			curr_elem = list_remove(curr_elem);   //! ìˆœì„œì¤‘ìš”
+			thread_unblock(curr_thread);		//! ìœ„ì™€ ìˆœì„œ ë°”ê¾¸ë©´ í‹€ë¦¼
 			//printf("unblock : %d \n", curr_thread->wakeup_tick);
 		}
 
@@ -269,7 +269,7 @@ thread_awake(int64_t ticks) {
 
 }
 
-//! -----------------> alarm °úÁ¦¸¦ À§ÇÑ ÇÔ¼öµé end <---------------------
+//! -----------------> alarm ê³¼ì œë¥¼ ìœ„í•œ í•¨ìˆ˜ë“¤ end <---------------------
 
 
 void
@@ -289,7 +289,7 @@ thread_init(void) {
 	lock_init(&tid_lock);
 	list_init(&ready_list);
 
-	//! Ãß°¡ : sleep_queue ¸¦ ÃÊ±âÈ­
+	//! ì¶”ê°€ : sleep_queue ë¥¼ ì´ˆê¸°í™”
 	list_init(&sleep_queue);
 
 	list_init(&destruction_req);
@@ -367,39 +367,36 @@ thread_create(const char* name, int priority,
 	ASSERT(function != NULL);
 
 	/* Allocate thread. */
-	t = palloc_get_page(PAL_ZERO);   //! ÆäÀÌÁö ÇÒ´ç
-	if (t == NULL)                   //! ÆÈ·Ï °¡µå(¸Þ¸ð¸®ÇÒ´çÇÏ´Ù ½ÇÆÐÇÒ ¼ö ÀÖ±â ¶§¹®)
+	t = palloc_get_page(PAL_ZERO);   //! íŽ˜ì´ì§€ í• ë‹¹
+	if (t == NULL)                   //! íŒ”ë¡ ê°€ë“œ(ë©”ëª¨ë¦¬í• ë‹¹í•˜ë‹¤ ì‹¤íŒ¨í•  ìˆ˜ ìžˆê¸° ë•Œë¬¸)
 		return TID_ERROR;
 
-
-
-
 	/* Initialize thread. */
-	init_thread(t, name, priority);	//! thread ±¸Á¶Ã¼ ÃÊ±âÈ­
+	init_thread(t, name, priority);	//! thread êµ¬ì¡°ì²´ ì´ˆê¸°í™”
 
-    t->fd_table = palloc_get_page(PAL_ZERO); //! Ãß°¡ : Åõ Æ÷ÀÎÅÍ·Î ¼±¾ð Çß±â¿¡
-    //! palloc_get_page·Î ¸Þ¸ð¸® ÇÒ´çÇØÁÜ
-    //! ±Ùµ¥ ¿Ö init_thread ¾È¿¡¼­ ÇÏ¸é is_thread°¡ ¶ã±î?
+    t->fd_table = palloc_get_page(PAL_ZERO); //! ì¶”ê°€ : íˆ¬ í¬ì¸í„°ë¡œ ì„ ì–¸ í–ˆê¸°ì—
+    //! palloc_get_pageë¡œ ë©”ëª¨ë¦¬ í• ë‹¹í•´ì¤Œ
+    //! ê·¼ë° ì™œ init_thread ì•ˆì—ì„œ í•˜ë©´ is_threadê°€ ëœ°ê¹Œ?
 
 
-    if (t->fd_table == NULL){    //! ÆÈ·Ï °¡µå(¸Þ¸ð¸®ÇÒ´çÇÏ´Ù ½ÇÆÐÇÒ ¼ö ÀÖ±â ¶§¹®)
-		// printf("------>>>> thread_create ÇÔ¼öÀÔ´Ï´Ù <<<<------\n");
+    if (t->fd_table == NULL){    //! íŒ”ë¡ ê°€ë“œ(ë©”ëª¨ë¦¬í• ë‹¹í•˜ë‹¤ ì‹¤íŒ¨í•  ìˆ˜ ìžˆê¸° ë•Œë¬¸)
+		// printf("------>>>> thread_create í•¨ìˆ˜ìž…ë‹ˆë‹¤ <<<<------\n");
         return TID_ERROR;
     }
 
-	//! Ãß°¡
-	/* fd °ª ÃÊ±âÈ­(0,1Àº Ç¥ÁØ ÀÔ·Â,Ãâ·Â) */
+	//! ì¶”ê°€
+	/* fd ê°’ ì´ˆê¸°í™”(0,1ì€ í‘œì¤€ ìž…ë ¥,ì¶œë ¥) */
 	t->next_fd = 2;
-	/* File Descriptor Å×ÀÌºí¿¡ ¸Þ¸ð¸® ÇÒ´ç */
-	//! File Descriptor°°Àº °æ¿ì ¿ì¸®°¡ ±¸Á¶Ã¼¿¡¼­ Á¤ÀûÀ¸·Î ¼±¾ðÇØÁá°í
-	//! init_thread¾È¿¡¼­ memsetÀ¸·Î 0À¸·Î ÃÊ±âÈ­ÇÏ±â¶§¹®¿¡ ±»ÀÌ ¸Þ¸ð¸® ÇÒ´çÇÒ ÇÊ¿ä ¾øÀ½
+	/* File Descriptor í…Œì´ë¸”ì— ë©”ëª¨ë¦¬ í• ë‹¹ */
+	//! File Descriptorê°™ì€ ê²½ìš° ìš°ë¦¬ê°€ êµ¬ì¡°ì²´ì—ì„œ ì •ì ìœ¼ë¡œ ì„ ì–¸í•´ì¤¬ê³ 
+	//! init_threadì•ˆì—ì„œ memsetìœ¼ë¡œ 0ìœ¼ë¡œ ì´ˆê¸°í™”í•˜ê¸°ë•Œë¬¸ì— êµ³ì´ ë©”ëª¨ë¦¬ í• ë‹¹í•  í•„ìš” ì—†ìŒ
 
 
 
-	tid = t->tid = allocate_tid();		//! tid ÇÒ´ç
+	tid = t->tid = allocate_tid();		//! tid í• ë‹¹
 
 
-	t->par_tid = thread_current()->tid;
+	t->parent = thread_current();
 	t->is_process_load = 0;
 	t->is_process_exit = 0;
 	sema_init(&t->semaphore_exit, 0);
@@ -422,9 +419,9 @@ thread_create(const char* name, int priority,
 
 
 		/* Add to run queue. */
-		thread_unblock(t); // t´Â ÀÚ½Ä
+		thread_unblock(t); // tëŠ” ìžì‹
 
-		//! Ãß°¡ : »ý¼ºµÈ ½º·¹µåÀÇ ¿ì¼±¼øÀ§°¡ ÇöÀç ½ÇÇàÁßÀÎ ½º·¹µåÀÇ ¿ì¼±¼øÀ§º¸´Ù ³ô´Ù¸é CPU¸¦ ¾çº¸ÇÑ´Ù.
+		//! ì¶”ê°€ : ìƒì„±ëœ ìŠ¤ë ˆë“œì˜ ìš°ì„ ìˆœìœ„ê°€ í˜„ìž¬ ì‹¤í–‰ì¤‘ì¸ ìŠ¤ë ˆë“œì˜ ìš°ì„ ìˆœìœ„ë³´ë‹¤ ë†’ë‹¤ë©´ CPUë¥¼ ì–‘ë³´í•œë‹¤.
 	if (t->priority > thread_current()->priority) {
 		thread_yield();
 	}
@@ -458,19 +455,19 @@ thread_unblock(struct thread* t) {
 
 	ASSERT(is_thread(t));
 
-	old_level = intr_disable(); //! ÀÎÅÍ·´Æ® ¹è¸®¾î
+	old_level = intr_disable(); //! ì¸í„°ëŸ½íŠ¸ ë°°ë¦¬ì–´
 	ASSERT(t->status == THREAD_BLOCKED);
 
 	struct list_elem* curr_elem = list_begin(&ready_list);
 	struct thread* curr_thread;
 
-	//! Ãß°¡ : ¿ì¼±¼øÀ§ ¼øÀ¸·Î Á¤·Ä µÇ¾î ready_list¿¡ »ðÀÔµÇµµ·Ï ÇÏÀÚ
+	//! ì¶”ê°€ : ìš°ì„ ìˆœìœ„ ìˆœìœ¼ë¡œ ì •ë ¬ ë˜ì–´ ready_listì— ì‚½ìž…ë˜ë„ë¡ í•˜ìž
 	list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL);
 
-	// list_push_back (&ready_list, &t->elem);  --> ±âº»ÄÚµå
+	// list_push_back (&ready_list, &t->elem);  --> ê¸°ë³¸ì½”ë“œ
 
 	t->status = THREAD_READY;
-	intr_set_level(old_level); //! ÀÎÅÍ·´Æ® ¹è¸®¾î Ç®±â
+	intr_set_level(old_level); //! ì¸í„°ëŸ½íŠ¸ ë°°ë¦¬ì–´ í’€ê¸°
 }
 
 /* Returns the name of the running thread. */
@@ -483,7 +480,7 @@ thread_name(void) {
    This is running_thread() plus a couple of sanity checks.
    See the big comment at the top of thread.h for details. */
 struct thread*
-	thread_current(void) {   // ÇöÀç ½ÇÇàµÇ°í ÀÖ´Â thread¸¦ ¹ÝÈ¯
+	thread_current(void) {   // í˜„ìž¬ ì‹¤í–‰ë˜ê³  ìžˆëŠ” threadë¥¼ ë°˜í™˜
 	struct thread* t = running_thread();
 
 	/* Make sure T is really a thread.
@@ -523,7 +520,7 @@ thread_exit(void) {
 /* Yields the CPU.  The current thread is not put to sleep and
    may be scheduled again immediately at the scheduler's whim. */
 void
-thread_yield(void) {			//! CPU¸¦ ¾çº¸ÇÏ°í, thread¸¦ ready_list¿¡ »ðÀÔ
+thread_yield(void) {			//! CPUë¥¼ ì–‘ë³´í•˜ê³ , threadë¥¼ ready_listì— ì‚½ìž…
 	struct thread* curr = thread_current();
 	enum intr_level old_level;
 
@@ -531,36 +528,36 @@ thread_yield(void) {			//! CPU¸¦ ¾çº¸ÇÏ°í, thread¸¦ ready_list¿¡ »ðÀÔ
 
 	old_level = intr_disable();
 	if (curr != idle_thread)
-		//! Ãß°¡ : ready_list¿¡ »ðÀÔ µÉ ¶§ ¿ì¼±¼øÀ§ ¼ø¼­·Î Á¤·Ä
+		//! ì¶”ê°€ : ready_listì— ì‚½ìž… ë  ë•Œ ìš°ì„ ìˆœìœ„ ìˆœì„œë¡œ ì •ë ¬
 		list_insert_ordered(&ready_list, &thread_current()->elem, cmp_priority, NULL);
-	//list_push_back (&ready_list, &curr->elem);  --> ±âÁ¸ ÄÚµå
+	//list_push_back (&ready_list, &curr->elem);  --> ê¸°ì¡´ ì½”ë“œ
 	do_schedule(THREAD_READY);
 	intr_set_level(old_level);
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
-//! threadÀÇ priority ¸¦ ´Ù½Ã ¼¼ÆÃÇÑ´Ù. ÀÌ´Â »ç¿ëÀÚ°¡ »ç¿ëÇÏ´Â ÇÔ¼ö¶ó »ý°¢ÇØ¾ß ÇÒ °Í °°´Ù. 
+//! threadì˜ priority ë¥¼ ë‹¤ì‹œ ì„¸íŒ…í•œë‹¤. ì´ëŠ” ì‚¬ìš©ìžê°€ ì‚¬ìš©í•˜ëŠ” í•¨ìˆ˜ë¼ ìƒê°í•´ì•¼ í•  ê²ƒ ê°™ë‹¤. 
 void
 thread_set_priority(int new_priority)
 {
 	thread_current()->priority = new_priority;
 
-	//! Ãß°¡ : threadÀÇ ¿ì¼±¼øÀ§¸¦ ¾Æ¿¹ º¯°æÇÏ´Â °ÍÀÌ¹Ç·Î init_priorityµµ º¯°æ
+	//! ì¶”ê°€ : threadì˜ ìš°ì„ ìˆœìœ„ë¥¼ ì•„ì˜ˆ ë³€ê²½í•˜ëŠ” ê²ƒì´ë¯€ë¡œ init_priorityë„ ë³€ê²½
 	thread_current()->init_priority = new_priority;
 
-	//! Ãß°¡ : refresh_priority() ÇÔ¼ö¸¦ »ç¿ëÇÏ¿© ¿ì¼±¼øÀ§¸¦ º¯°æÀ¸·Î ÀÎÇÑ
-	//!			donation °ü·Ã Á¤º¸¸¦ °»½ÅÇÑ´Ù
+	//! ì¶”ê°€ : refresh_priority() í•¨ìˆ˜ë¥¼ ì‚¬ìš©í•˜ì—¬ ìš°ì„ ìˆœìœ„ë¥¼ ë³€ê²½ìœ¼ë¡œ ì¸í•œ
+	//!			donation ê´€ë ¨ ì •ë³´ë¥¼ ê°±ì‹ í•œë‹¤
 	refresh_priority();
 
-	//! Ãß°¡ : donation_priority(), test_max_pariority() ÇÔ¼ö¸¦ ÀûÀýÈ÷
-	//! 		»ç¿ëÇÏ¿© priority donation À» ¼öÇàÇÏ°í ½ºÄÉÁÙ¸µ ÇÑ´Ù
+	//! ì¶”ê°€ : donation_priority(), test_max_pariority() í•¨ìˆ˜ë¥¼ ì ì ˆížˆ
+	//! 		ì‚¬ìš©í•˜ì—¬ priority donation ì„ ìˆ˜í–‰í•˜ê³  ìŠ¤ì¼€ì¤„ë§ í•œë‹¤
 	test_max_priority();
 
 
-	// Ãß°¡ : threadÀÇ ¿ì¼±¼øÀ§°¡ º¯°æµÇ¾úÀ» ¶§ ¿ì¼± ¼øÀ§¿¡ µû¶ó ¼±Á¡ÀÌ ¹ß»ýÇÏµµ·Ï ÇÑ´Ù.
+	// ì¶”ê°€ : threadì˜ ìš°ì„ ìˆœìœ„ê°€ ë³€ê²½ë˜ì—ˆì„ ë•Œ ìš°ì„  ìˆœìœ„ì— ë”°ë¼ ì„ ì ì´ ë°œìƒí•˜ë„ë¡ í•œë‹¤.
 	// if (cmp_priority(list_begin(&ready_list), &thread_current()->elem, NULL)){
 	// 	thread_yield();
-	// }      ---> ±âÁ¸ º¯°æÄÚµå
+	// }      ---> ê¸°ì¡´ ë³€ê²½ì½”ë“œ
 }
 
 /* Returns the current thread's priority. */
@@ -657,9 +654,9 @@ init_thread(struct thread* t, const char* name, int priority) {
 	t->priority = priority;
 	t->magic = THREAD_MAGIC;
 
-	//! Ãß°¡ : priority donation °ü·Ã ÀÚ·á±¸Á¶ ÃÊ±âÈ­
-	t->init_priority = priority;  //! threadÀÇ priority¸¦ »ç¿ëÀÚ°¡ Á÷Á¢ 
-								  //! ¹Ù²Ù´Â°Ô ¾Æ´Ñ ÀÌ»ó ¹Ù²ðÀÏ ¾øÀ½
+	//! ì¶”ê°€ : priority donation ê´€ë ¨ ìžë£Œêµ¬ì¡° ì´ˆê¸°í™”
+	t->init_priority = priority;  //! threadì˜ priorityë¥¼ ì‚¬ìš©ìžê°€ ì§ì ‘ 
+								  //! ë°”ê¾¸ëŠ”ê²Œ ì•„ë‹Œ ì´ìƒ ë°”ë€”ì¼ ì—†ìŒ
 	t->wait_on_lock = NULL;
 	list_init(&t->donations);
 	list_init(&t->child);
@@ -780,9 +777,9 @@ thread_launch(struct thread* th) {
 static void
 do_schedule(int status) {
 	ASSERT(intr_get_level() == INTR_OFF);
-	ASSERT(thread_current()->status == THREAD_RUNNING); //! ·¯´×ÁßÀÎ ½º·¹µå°¡ ¾Æ´Ï¾î¾ßÇÔ
+	ASSERT(thread_current()->status == THREAD_RUNNING); //! ëŸ¬ë‹ì¤‘ì¸ ìŠ¤ë ˆë“œê°€ ì•„ë‹ˆì–´ì•¼í•¨
 	
-    //! Ãß°¡: fork¸¦ À§ÇØ »èÁ¦¸¦ Çß´Ù, ±Ùµ¥ ¿Ö ±×·¡¾ß ÇÔ???
+    //! ì¶”ê°€: forkë¥¼ ìœ„í•´ ì‚­ì œë¥¼ í–ˆë‹¤, ê·¼ë° ì™œ ê·¸ëž˜ì•¼ í•¨???
     while (!list_empty(&destruction_req)) {
 		struct thread* victim =
 			list_entry(list_pop_front(&destruction_req), struct thread, elem);
@@ -799,7 +796,7 @@ schedule(void) {
 	struct thread* next = next_thread_to_run();
 
 	ASSERT(intr_get_level() == INTR_OFF);
-	ASSERT(curr->status != THREAD_RUNNING); //! ·¯´×ÁßÀÎ ½º·¹µå¿©¾ß ÇÔ
+	ASSERT(curr->status != THREAD_RUNNING); //! ëŸ¬ë‹ì¤‘ì¸ ìŠ¤ë ˆë“œì—¬ì•¼ í•¨
 	ASSERT(is_thread(next));
 	/* Mark us as running. */
 	next->status = THREAD_RUNNING;
@@ -820,14 +817,16 @@ schedule(void) {
 		   currently used bye the stack.
 		   The real destruction logic will be called at the beginning of the
 		   schedule(). */
-		if (curr && curr->status == THREAD_DYING && curr != initial_thread) {
+		if (curr && curr->status == THREAD_DYING && curr != initial_thread 
+			&& ((is_thread(curr->parent) && curr->parent->is_process_exit) //! is_thread(curr->parent)ë¥¼ ë„£ì–´ì¤€ ì´ìœ ëŠ” ì´ê²Œ trueê°€ ì•ˆë˜ë©´ curr->parent->is_process_exit ìœ¼ë¡œ ì ‘ê·¼ì´ ì•ˆë˜ê¸°ë–„ë¬¸
+			||!is_thread(curr->parent))) {
 			ASSERT(curr != next);
-            if(!curr->is_process_exit){ //! Ãß°¡ : ÀÌ Á¶°ÇÀ» ÇÞÀ»¶§ ¿Ö µÇ´Â°¡?
-            //! ÀÏ´Ü µÎ ½ºÄÉÁÙ¿¡¼­ ¿©±â´Â Á»ºñ ÇÁ·Î¼¼½º or °í¾Æ ÇÁ·Î¼¼½º¸¦ 
-            //! Ã³¸®ÇØÁÖ±â À§ÇÔ
-            // todo ¿©±â¸¦ ¹Ýµå½Ã ÀÌÇØÇØ¾ß ÇÒµí
+            // if(!curr->is_process_exit){ //! ì¶”ê°€ : ì´ ì¡°ê±´ì„ í–‡ì„ë•Œ ì™œ ë˜ëŠ”ê°€?
+            //! ì¼ë‹¨ ë‘ ìŠ¤ì¼€ì¤„ì—ì„œ ì—¬ê¸°ëŠ” ì¢€ë¹„ í”„ë¡œì„¸ìŠ¤ or ê³ ì•„ í”„ë¡œì„¸ìŠ¤ë¥¼ 
+            //! ì²˜ë¦¬í•´ì£¼ê¸° ìœ„í•¨
+            // todo ì—¬ê¸°ë¥¼ ë°˜ë“œì‹œ ì´í•´í•´ì•¼ í• ë“¯
 			    list_push_back(&destruction_req, &curr->elem);
-            }
+            // }
 		}
 
 		/* Before switching the thread, we first save the information
