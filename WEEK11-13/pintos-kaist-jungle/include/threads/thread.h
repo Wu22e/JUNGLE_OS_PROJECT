@@ -4,31 +4,30 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
-#include <threads/synch.h>
-
 #include "threads/interrupt.h"
-
+#include "threads/synch.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
 
+
 /* States in a thread's life cycle. */
 enum thread_status {
-    THREAD_RUNNING, /* Running thread. */
-    THREAD_READY,   /* Not running but ready to run. */
-    THREAD_BLOCKED, /* Waiting for an event to trigger. */
-    THREAD_DYING    /* About to be destroyed. */
+	THREAD_RUNNING,     /* Running thread. */
+	THREAD_READY,       /* Not running but ready to run. */
+	THREAD_BLOCKED,     /* Waiting for an event to trigger. */
+	THREAD_DYING        /* About to be destroyed. */
 };
 
 /* Thread identifier type.
    You can redefine this to whatever type you like. */
 typedef int tid_t;
-#define TID_ERROR ((tid_t)-1) /* Error value for tid_t. */
+#define TID_ERROR ((tid_t) -1)          /* Error value for tid_t. */
 
 /* Thread priorities. */
-#define PRI_MIN 0      /* Lowest priority. */
-#define PRI_DEFAULT 31 /* Default priority. */
-#define PRI_MAX 63     /* Highest priority. */
+#define PRI_MIN 0                       /* Lowest priority. */
+#define PRI_DEFAULT 31                  /* Default priority. */
+#define PRI_MAX 63                      /* Highest priority. */
 
 /* A kernel thread or user process.
  *
@@ -81,59 +80,69 @@ typedef int tid_t;
  * the `magic' member of the running thread's `struct thread' is
  * set to THREAD_MAGIC.  Stack overflow will normally change this
  * value, triggering the assertion. */
-/* The `elem' member has a dual purpose.  It can be an element in
- * the run queue (thread.c), or it can be an element in a
- * semaphore wait list (synch.c).  It can be used these two ways
- * only because they are mutually exclusive: only a thread in the
- * ready state is on the run queue, whereas only a thread in the
- * blocked state is on a semaphore wait list. */
+ /* The `elem' member has a dual purpose.  It can be an element in
+  * the run queue (thread.c), or it can be an element in a
+  * semaphore wait list (synch.c).  It can be used these two ways
+  * only because they are mutually exclusive: only a thread in the
+  * ready state is on the run queue, whereas only a thread in the
+  * blocked state is on a semaphore wait list. */
 struct thread {
-    /* Owned by thread.c. */
-    tid_t tid;                 /* Thread identifier. */
-    enum thread_status status; /* Thread state. */
-    char name[16];             /* Name (for debugging purposes). */
-    int priority;              /* Priority. */
-    int init_priority;
-    int nice;
-    int recent_cpu;
-    int64_t wakeup_tick;
+	/* Owned by thread.c. */
+	tid_t tid;                          /* Thread identifier. */
+	enum thread_status status;          /* Thread state. */
+	char name[16];                      /* Name (for debugging purposes). */
+	int priority;                       /* Priority. */
+    
 
-    /* Shared between thread.c and synch.c. */
-    struct list_elem allelem;
-    struct list_elem elem;           /* List element. */
-    struct lock *wait_on_lock;       //해당 스레드가 대기 하고 있는 lock 자료구조의 주소를 저장
-    struct list donations;           //도네이션 리스트 (multiple donation 고려 위해 사용)
-    struct list_elem donation_elem;  //도네이션 리스트에 들어갈 elem
+	//! 추가 : 프로세스 디스크립터 정보 추가 
+	struct thread* parent; /* 부모 프로세스의 디스크립터 */
+	struct list_elem child_elem; /* 자식 리스트 element */
+	struct list child; /* 자식 리스트 */
 
-    struct thread *parent;
-    struct list_elem childelem;
-    struct list child_list;
+	int is_process_load; /* 프로세스의 프로그램 메모리 적재 유무 */
+	int is_process_exit; /* 프로세스가 종료 유무 확인 */
 
-    struct semaphore exit_semaphore;
-    struct semaphore load_semaphore;
-    struct semaphore fork_semaphore;
+    int success_fork; //! oom 추가 : fork 실패시 fork 가 -1 리턴할 수 있게
 
-    int child_load_status;
-    int child_exit_status;
-    int child_fork_status;
+	struct semaphore semaphore_exit; /* exit 세마포어 */
+	struct semaphore semaphore_load; /* load 세마포어 */
+    struct semaphore semaphore_fork; /* fork 세마포어 */
+	int exit_status; /* exit 호출 시 종료 status */
 
-    struct file *current_file;
-    struct file **fd_table;
-    int max_fd;
+	//! 헤더추가
+    struct file **fd_table; //! fd_table을 투포인터로 바꿔줌
+	// struct file* fd_table[64];
+	int next_fd;
+
+	struct file* file_exec; //! 추가 : 실행중인 파일 구조체를 thread 구조체에 추가
+    //! 이거는 rox 문제해결하기 위함
+
+	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
+	int64_t wakeup_tick;
+
+	//! - - - 추가 : priority donation 관련 항목 추가 - - - -
+
+	int init_priority;	//! donation 이후 우선순위를 초기화하기 위해 초기값 저장
+	struct lock* wait_on_lock;	//! 해당 스레드가 대기하고있는 lock 자료구조의 주소를 저장
+	struct list donations;				//! multiple donation을 고려하기 위해 사용
+	struct list_elem donation_elem; 	//! 위와 같음
+
+	/* Shared between thread.c and synch.c. */
+	struct list_elem elem;              /* List element. */
 
 #ifdef USERPROG
-    /* Owned by userprog/process.c. */
-    uint64_t *pml4; /* Page map level 4 */
-
+	/* Owned by userprog/process.c. */
+	uint64_t* pml4;                     /* Page map level 4 */
 #endif
 #ifdef VM
-    /* Table for whole virtual memory owned by thread. */
-    struct supplemental_page_table spt;
+	/* Table for whole virtual memory owned by thread. */
+	struct supplemental_page_table spt;
 #endif
 
-    /* Owned by thread.c. */
-    struct intr_frame tf; /* Information for switching */
-    unsigned magic;       /* Detects stack overflow. */
+	/* Owned by thread.c. */
+	struct intr_frame tf;               /* Information for switching */
+    struct intr_frame fork_tf; //! 추가 : fork를 위한 tf
+	unsigned magic;                     /* Detects stack overflow. */
 };
 
 /* If false (default), use round-robin scheduler.
@@ -147,23 +156,15 @@ void thread_start(void);
 void thread_tick(void);
 void thread_print_stats(void);
 
-typedef void thread_func(void *aux);
-tid_t thread_create(const char *name, int priority, thread_func *, void *);
-
-void thread_sleep(int64_t ticks);
-void thread_awake(int64_t ticks);
-void update_next_tick_to_awake(int64_t tick);
-int64_t get_next_tick_to_awake(void);
-
-void test_max_priority(void);                                                               //현재 수행중인 스레드와 가장 높은 우선순위의 스레드의 우선순위를 비교하여 스케줄링
-bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);  // 인자로 주어진 스레드들의 우선순위 비교
+typedef void thread_func(void* aux);
+tid_t thread_create(const char* name, int priority, thread_func*, void*);
 
 void thread_block(void);
-void thread_unblock(struct thread *);
+void thread_unblock(struct thread*);
 
-struct thread *thread_current(void);
+struct thread* thread_current(void);
 tid_t thread_tid(void);
-const char *thread_name(void);
+const char* thread_name(void);
 
 void thread_exit(void) NO_RETURN;
 void thread_yield(void);
@@ -176,15 +177,21 @@ void thread_set_nice(int);
 int thread_get_recent_cpu(void);
 int thread_get_load_avg(void);
 
-void do_iret(struct intr_frame *tf);
+void do_iret(struct intr_frame* tf);
 
+//! 선언 추가
+void thread_sleep(int64_t ticks);
+void thread_awake(int64_t ticks);
+int64_t get_next_tick_to_awake(void);
+void update_next_tick_to_awake(int64_t ticks);
+
+//! 선언 추가 : priority
+void test_max_priority(void);
+bool cmp_priority(const struct list_elem* a, const struct list_elem* b, void* aux UNUSED);
+
+//! 선언 추가 : priority
 void donate_priority(void);
-void remove_with_lock(struct lock *lock);
+void remove_with_lock(struct lock* lock);
 void refresh_priority(void);
 
-void mlfqs_priority(struct thread *t);
-void mlfqs_recent_cpu(struct thread *t);
-void mlfqs_load_avg(void);
-void mlfqs_increment(void);
-void mlfqs_recalc(void);
 #endif /* threads/thread.h */
