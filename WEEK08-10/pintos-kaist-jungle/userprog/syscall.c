@@ -189,7 +189,7 @@ int sys_open(const char* file) {
     /* 파일 디스크립터 리턴 */
     /* 해당 파일이 존재하지 않으면 -1 리턴 */
     if (file == NULL) { sys_exit(-1); }
-    int temp = process_add_file(file뇨sys_open(file));
+    int temp = process_add_file(filesys_open(file));
     return temp;
     // ! process_add_file에서 fd가 없을때 NULL까지 반환시켜서 괜찮음
 }
