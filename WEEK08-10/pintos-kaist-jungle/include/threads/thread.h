@@ -99,8 +99,10 @@ struct thread {
 	struct list_elem child_elem; /* 자식 리스트 element */
 	struct list child; /* 자식 리스트 */
 
-	int process_load; /* 프로세스의 프로그램 메모리 적재 유무 */
-	int process_exit; /* 프로세스가 종료 유무 확인 */
+	int is_process_load; /* 프로세스의 프로그램 메모리 적재 유무 */
+	int is_process_exit; /* 프로세스가 종료 유무 확인 */
+
+    int success_fork; //! oom 추가 : fork 실패시 fork 가 -1 리턴할 수 있게
 
 	struct semaphore semaphore_exit; /* exit 세마포어 */
 	struct semaphore semaphore_load; /* load 세마포어 */
@@ -108,10 +110,12 @@ struct thread {
 	int exit_status; /* exit 호출 시 종료 status */
 
 	//! 헤더추가
-	struct file* fd_table[64];
+    struct file **fd_table; //! fd_table을 투포인터로 바꿔줌
+	// struct file* fd_table[64];
 	int next_fd;
 
 	struct file* file_exec; //! 추가 : 실행중인 파일 구조체를 thread 구조체에 추가
+    //! 이거는 rox 문제해결하기 위함
 
 	//! 추가 : 깨어나야 할 tick을 저장할 변수 추가
 	int64_t wakeup_tick;

@@ -93,8 +93,19 @@ tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	/* Clone current thread to new thread.*/
     tid_t temp = thread_create (name, PRI_DEFAULT, __do_fork, thread_current ());
-    sema_down(&thread_current()->semaphore_fork);
-	return temp;
+    if (temp != TID_ERROR)
+    {
+        sema_down(&thread_current()->semaphore_fork);
+        if(thread_current()->success_fork){
+            return temp;
+        }
+        else { 
+            return -1;
+        }
+    }
+    else {
+        return TID_ERROR;
+    }
 }
 
 #ifndef VM
@@ -137,6 +148,10 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
         //! 에러 핸들링! 이게 맞을까?
+        // palloc_free_page(newpage); //! 추가: pml4를 set page하지 못했을때 free 해주고 나가야 함._
+        //! 다시 주석처리함. 이거 주석해도 잘되는거 보니 다른데서 free를 해주나봄
+        //! 어디서 free하는지는 찾아봐야할듯;;
+        //todo 어디서 free해줄까?
         return false;
 	}
 	return true;
@@ -183,6 +198,8 @@ __do_fork (void *aux) {
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
 
+    parent->success_fork = 1;
+
     //! 추가 : 부모꺼 복사해와!!! 뭐를?? 파일들을!!
     for(int i = parent->next_fd; i > 0; i--){
         if(parent->fd_table[i]!= NULL ){
@@ -201,6 +218,7 @@ __do_fork (void *aux) {
         if_.R.rax = 0;  //! 자식은 0 리턴
 		do_iret (&if_);
 error:
+    sema_up(&parent->semaphore_fork); //! 추가 : ERROR시에도 세마업해줘야함!!! 
 	thread_exit ();
 }
 
@@ -223,10 +241,9 @@ process_exec(void* f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
-	/* We first kill the current context */
     // printf("------d----> %s <-----------\n",new_file_name);
 
-
+	/* We first kill the current context */
 	process_cleanup();
     // memcpy(file_name, new_file_name, sizeof f_name);
     // printf("------d----> %s <-----------\n",new_file_name);
@@ -241,13 +258,13 @@ process_exec(void* f_name) {
 
 	if (!success){
 #ifdef FORK
-		thread_current()->process_load = 0; //! 이건 ppt 따라하다가 ...
+		thread_current()->is_process_load = 0; //! 이건 ppt 따라하다가 ...
 #endif
 		return -1;
 	}
 
 #ifdef FORK
-	thread_current()->process_load = 1; //! 이건 ppt 따라하다가 ...
+	thread_current()->is_process_load = 1; //! 이건 ppt 따라하다가 ...
 #endif
 	//! 인자들을 스택에 먼저 쌓는다.
 #ifdef FORK
@@ -271,8 +288,10 @@ process_exec(void* f_name) {
 	//! - - - - - -
     
 	palloc_free_page(file_name);
-
-    // palloc_free_page(f_name);//! 얘 넣어으면 다터짐
+        if(is_kernel_vaddr(f_name)){
+        palloc_free_page(f_name);
+    }
+    //! 얘 넣어으면 다터짐
     //! 근데 f_name은 process_create_initd에서 palloc했는데
     //! 에러가 발생하지않아서 free되지않은상태로 쭊내려와서
     //! 여기서 프리할려고했는데 터짐 그이유는 모르겟음 나중에 
@@ -361,7 +380,7 @@ process_wait(tid_t child_tid UNUSED) {
 	
 	int temp;
 
-	if (child_thread->process_exit == 0)
+	if (child_thread->is_process_exit == 0)
 		temp = -1;
 	else
 		temp = child_thread->exit_status;
@@ -397,10 +416,15 @@ process_exit(void) {
 		else {}
 	}
 
+    palloc_free_page(curr->fd_table); //! 추가 : 투포인터로 선언한 fd table palloc한걸 
+    //! process_exit에서 free해준다 (왜냐면 무조건 어떤 방식으로든 프로그램 종료시 여기를 거치기 때문)
+    
+
 	process_cleanup();
 	//! load 마지막 (goto에서 done으로 간 부분)에서 file_close한걸 이함수 끝부분에
 	//! cleanup 밑에다가 추가해봄
-	file_close(thread_current()->file_exec);
+	file_close(thread_current()->file_exec); //! 추가 : rox 때문
+
 	sema_up(&curr->semaphore_exit); //! 부모프로세스의 대기 상태 이탈(세마포어 이용)
 }
 
@@ -451,6 +475,14 @@ int process_add_file(struct file* f)
 	if (f == NULL) return -1;
 
 	struct thread* curr = thread_current();
+
+    //! 추가 : oom 을 위해 추가
+    if(curr->next_fd >= 126)
+    {
+        file_close(f);
+        return -1;
+    }
+
 	int fd = curr->next_fd;
 	curr->fd_table[fd] = f;
 	curr->next_fd++;
@@ -485,7 +517,7 @@ void process_close_file(int fd)
 	if (fd <= 1 || fd >= curr->next_fd) return;
 	// if (fd >= curr->next_fd) return;
 
-	// file_close(curr->fd_table[fd]);
+	file_close(curr->fd_table[fd]); //! oom 추가: 왜 얘는 주석 처리되있었지?
 	curr->fd_table[fd] = NULL;
 }
 
@@ -702,6 +734,8 @@ load (const char *file_name, struct intr_frame *if_) {
 done:
 	/* We arrive here whether the load is successful or not. */
 	// file_close (file); //! 잠시 주석, process_exit에서 닫을거임
+    //! 여기서 닫으면 done 됬을때만 닫기 때문에 process_exit에서 닫으면
+    //! 에러 났을때도 닫을 수 있다. (rox 문제 해결위함)
 	return success;
 }
 
