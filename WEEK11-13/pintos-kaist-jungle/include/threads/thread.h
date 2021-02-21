@@ -128,7 +128,8 @@ struct thread {
 #endif
 #ifdef VM
     /* Table for whole virtual memory owned by thread. */
-    struct supplemental_page_table spt;
+    struct supplemental_page_table spt; //! 추가 스레드가 가진 가상 주소 공간을 관리하는 해시테이블 
+    
 #endif
 
     /* Owned by thread.c. */

@@ -4,6 +4,12 @@
 #include "vm/vm.h"
 #include "vm/inspect.h"
 
+
+//! 추가 (ppt) 함수 선언
+static unsigned vm_hash_func (const struct hash_elem *e,void *aux);
+static bool vm_less_func (const struct hash_elem *a, const struct hash_elem *b);
+
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -16,6 +22,7 @@ vm_init (void) {
 	register_inspect_intr ();
 	/* DO NOT MODIFY UPPER LINES. */
 	/* TODO: Your code goes here. */
+    //! 여기서 구현 시작
 }
 
 /* Get the type of the page. This function is useful if you want to know the
@@ -60,29 +67,45 @@ err:
 	return false;
 }
 
+//! 구현 (ppt에선 함수 파라미터로 void *vaddr만 받는데 어케함?;)
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
-
-	return page;
+    //! 여기서부터 구현
+    /* pg_round_down()으로 va의 페이지 번호를 얻음 */
+    struct hash_elem *elem;
+    page->va = pg_round_down(va); //? 이게 가능했던 이유가 뭐였을까?
+    //! 메모리 주소고 page 주소를 얻기 위해서 
+    //! 뒤에 12비트를 지웠다
+    /* hash_find() 함수를 사용해서 hash_elem 구조체 얻음 */
+    /* 만약 존재하지 않는다면 NULL 리턴 */
+    elem = hash_find(&spt->vm, &page->elem);
+    //! va는 임의의 virtual 
+    /* hash_entry()로 해당 hash_elem의 vm_entry 구조체 리턴 */
+	return elem != NULL ? hash_entry(elem, struct page, hash_elem) : NULL;
 }
 
+//! 구현 (ppt에선 함수이름으로 insert_vme라고 되어있음)
 /* Insert PAGE into spt with validation. */
 bool
 spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
 	int succ = false;
 	/* TODO: Fill this function. */
-
+    //! 여기서부터 구현
+    if(!hash_insert(&spt->vm, &page->elem)) succ = true;
 	return succ;
 }
 
-void
+//void //! 바꿈 : 기존 void였는데 return은 true로 되있어서 bool로 자료형 바궈줌
+bool
 spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
+    int succ = false;
+    if(hash_delete(&spt->vm, &page->elem)) succ = true;
 	vm_dealloc_page (page);
-	return true;
+    return succ;
 }
 
 /* Get the struct frame, that will be evicted. */
@@ -171,9 +194,13 @@ vm_do_claim_page (struct page *page) {
 	return swap_in (page, frame->kva);
 }
 
-/* Initialize new supplemental page table */
+//! 구현 시작 - - - --  -- - - -- - -- -- - - -- - -- - -
+/* Initialize new supplemental page table */ 
 void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
+    /* hash_init()으로 해시테이블 초기화 */
+    hash_init(&spt->vm, vm_hash_func, vm_less_func, NULL);
+    /* 인자로 해시 테이블과 vm_hash_func과 vm_less_func 사용 */
 }
 
 /* Copy supplemental page table from src to dst */
@@ -182,9 +209,47 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 		struct supplemental_page_table *src UNUSED) {
 }
 
+
+//! 추가 : supplemental_page_table_init 함수에서  
+//! destructor를 쓰기위해 굳이 다시만들어줌(지울 수도 있음)
+void hash_delete_destructor(struct hash_elem *e, void *aux) {
+    // struct hash *h = &(&(thread_current()->spt)->vm);
+    struct hash *h = &thread_current()->spt.vm;
+    struct hash_elem *found = find_elem(h, find_bucket(h, e), e);
+    if (found != NULL) {
+        remove_elem(h, found);
+        rehash(h);
+    }
+    return found;
+}
+
 /* Free the resource hold by the supplemental page table */
 void
 supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
+    hash_destroy(&spt->vm, hash_delete_destructor);
+}
+
+
+//! 추가 (ppt)
+static uint64_t vm_hash_func (const struct hash_elem *e,void *aux)
+{
+    /* hash_entry()로 element에 대한 vm_entry 구조체 검색 */
+    struct page * p = hash_entry(e, struct page, elem);
+    /* hash_int()를 이용해서 page의 멤버 va에 대한 해시값을
+    구하고 반환 */
+    return hash_int(p->va);
+}
+
+//! 추가 (ppt)
+static bool vm_less_func (const struct hash_elem *a, const struct
+hash_elem *b)
+{
+    /* hash_entry()로 각각의 element에 대한 page 구조체를 얻은
+    후 va 비교 (b가 크다면 true, a가 크다면 false */
+    struct page * ap = hash_entry(a, struct page, elem);
+    struct page * bp = hash_entry(b, struct page, elem);
+
+    return ap->va < bp->va;
 }

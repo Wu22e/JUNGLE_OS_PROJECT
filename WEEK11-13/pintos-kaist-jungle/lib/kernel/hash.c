@@ -271,11 +271,16 @@ hash_string (const char *s_) {
 }
 
 /* Returns a hash of integer I. */
+// uint64_t
+// hash_int (int i) { //! 밑에 복붙해서 만듬(얘는 함수 파라미터가 int i라서 밑에서 바꿔서 새롭게 만듦)
+// 	return hash_bytes (&i, sizeof i);
+// }
+
 uint64_t
-hash_int (int i) {
+hash_int (uintptr_t i) { //! uintptr_t로 함수 인자를 넘겨줌(hash_bytes에서 i주소값을 넘겨주니깐)
 	return hash_bytes (&i, sizeof i);
 }
-
+
 /* Returns the bucket in H that E belongs in. */
 static struct list *
 find_bucket (struct hash *h, struct hash_elem *e) {

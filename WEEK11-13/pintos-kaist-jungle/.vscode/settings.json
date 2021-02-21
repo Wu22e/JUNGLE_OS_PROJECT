@@ -1,5 +1,5 @@
 {
-  "files.associations": {
-    "loader.h": "c"
-  }
+    "files.associations": {
+        "malloc.h": "c"
+    }
 }

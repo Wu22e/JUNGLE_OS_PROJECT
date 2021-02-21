@@ -212,6 +212,9 @@ int process_exec(void *f_name) {
     memcpy(file_copy, f_name, strlen(f_name) + 1);
     file_name = file_copy;
 
+    //! 추가 : 해시 테이블 초기화
+    supplemental_page_table_init (&thread_current()->spt);
+    
     /* We cannot use the intr_frame in the thread structure.
 	 * This is because when current thread rescheduled,
 	 * it stores the execution information to the member. */
@@ -318,6 +321,7 @@ void process_exit(void) {
         close(i);
     }
     palloc_free_page(curr->fd_table);
+
 
     /* TODO: Your code goes here.
 	 * TODO: Implement process termination message (see
