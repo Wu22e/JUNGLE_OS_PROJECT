@@ -103,7 +103,10 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 bool
 spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
     int succ = false;
+    //! 여기서 부터 구현
     if(hash_delete(&spt->vm, &page->elem)) succ = true;
+
+    //! - - - - - - - - - - - - - - - - - - - - - - - - - -
 	vm_dealloc_page (page);
     return succ;
 }
@@ -135,6 +138,10 @@ static struct frame *
 vm_get_frame (void) {
 	struct frame *frame = NULL;
 	/* TODO: Fill this function. */
+    //! 여기서 부터 구현
+    frame = palloc_get_page(PAL_USER);
+    PANIC("todo");  //! 우리는 메모리가 꽉찰때 스왓아웃할 부분이 구현안되어있으니 PANIC에 걸릴거다.
+    //! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	ASSERT (frame != NULL);
 	ASSERT (frame->page == NULL);
@@ -176,7 +183,7 @@ bool
 vm_claim_page (void *va UNUSED) {
 	struct page *page = NULL;
 	/* TODO: Fill this function */
-
+    page = spt_find_page (&thread_current()->spt, va); //todo NULL 처리해야함
 	return vm_do_claim_page (page);
 }
 
@@ -190,6 +197,9 @@ vm_do_claim_page (struct page *page) {
 	page->frame = frame;
 
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
+    //! 여기서부터 구현
+    spt_insert_page(&thread_current()->spt, page) //! 얘 반환형이 bool인데, 밑에 return (swap_in)이 bool이어서 걍 
+    //! 나중에 보자
 
 	return swap_in (page, frame->kva);
 }
@@ -211,16 +221,17 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 
 
 //! 추가 : supplemental_page_table_init 함수에서  
-//! destructor를 쓰기위해 굳이 다시만들어줌(지울 수도 있음)
-void hash_delete_destructor(struct hash_elem *e, void *aux) {
+void spt_destructor(struct hash_elem *e, void *aux) {
     // struct hash *h = &(&(thread_current()->spt)->vm);
-    struct hash *h = &thread_current()->spt.vm;
-    struct hash_elem *found = find_elem(h, find_bucket(h, e), e);
-    if (found != NULL) {
-        remove_elem(h, found);
-        rehash(h);
-    }
-    return found;
+    // struct hash *h = &thread_current()->spt.vm;
+    // struct hash_elem *found = find_elem(h, find_bucket(h, e), e);
+    // if (found != NULL) {
+    //     remove_elem(h, found);
+    //     rehash(h);
+    // }
+    // return found;
+    struct page *p = hash_entry(e, struct page, elem);
+    vm_dealloc_page(p);
 }
 
 /* Free the resource hold by the supplemental page table */
@@ -228,7 +239,7 @@ void
 supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
-    hash_destroy(&spt->vm, hash_delete_destructor);
+    hash_destroy(&spt->vm, spt_destructor);
 }
 
 

@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "malloc.h": "c"
+        "random": "cpp",
+        "atomic": "cpp",
+        "memory": "cpp",
+        "xstring": "cpp"
     }
 }

@@ -212,7 +212,7 @@ int process_exec(void *f_name) {
     memcpy(file_copy, f_name, strlen(f_name) + 1);
     file_name = file_copy;
 
-    //! Ãß°¡ : ÇØ½Ã Å×ÀÌºí ÃÊ±âÈ­
+    //! ï¿½ß°ï¿½ : ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ê±ï¿½È­
     supplemental_page_table_init (&thread_current()->spt);
     
     /* We cannot use the intr_frame in the thread structure.
@@ -240,7 +240,7 @@ int process_exec(void *f_name) {
     // user base = 0x47480000
 
     /* We first kill the current context */
-    process_cleanup();  // user¿µ¿ªÀ» ³¯¸°´Ù
+    process_cleanup();  // userï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     // printf("----- f_name:   %p      -----\n", &f_name);
     // printf("----- f_name:   %s -----\n", f_name);
@@ -260,8 +260,8 @@ int process_exec(void *f_name) {
     // printf("------before load      :     %p -------\n", _if.rsp);
     // puts("");
     success = load(parse[0], &_if);
-    // load¸¦ ÅëÇØ _if.rsp°¡ À¯Àú¿µ¿ªÀÇ ¸Ç À­ºÎºĞÀÎ stack(ºñ¾îÀÖÀ½)ÀÇ topÀ» °¡¸®Å°°Ô µÈ´Ù
-    // ¿ÀÁ÷ fork¸¦ ÅëÇØ exec µÈ
+    // loadï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ _if.rspï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ stack(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ topï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½È´ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ forkï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ exec ï¿½ï¿½
 
     // printf("----- f_name:   %p      -----\n", &f_name);
     // printf("----- f_name:   %s -----\n", f_name);
@@ -279,10 +279,10 @@ int process_exec(void *f_name) {
     // printf("------after  arg-stack:     %p -------\n", &_if.rsp);
     // printf("------after  arg-stack:     %p -------\n", _if.rsp);
     // if load failed, quit
-    // palloc_free_page(file_name); // À§Ä¡È®ÀÎ
+    // palloc_free_page(file_name); // ï¿½ï¿½Ä¡È®ï¿½ï¿½
 
     if (!success) {
-        palloc_free_page(file_name);  // ¿©±ä ¾î‹š?
+        palloc_free_page(file_name);  // ï¿½ï¿½ï¿½ï¿½ ï¿½î‹š?
         return -1;
     }
     /* Start switched process. */
@@ -609,7 +609,7 @@ validate_segment(const struct Phdr *phdr, struct file *file) {
     return true;
 }
 
-#ifndef VM
+#ifdef VM //todo ifndefë¥¼ ifdefë¡œ í•´ì•¼ë˜ì§€ì•Šë‚˜? proj3ì—ì„œ ì“¸ë ¤ê³  ì—¬ê¸° êµ¬í˜„í•˜ëŠ”ì¤‘ì¸ë°??!
 /* Codes of this block will be ONLY USED DURING project 2.
  * If you want to implement the function for whole project 2, implement it
  * outside of #ifndef macro. */
@@ -646,6 +646,7 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
         size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
         size_t page_zero_bytes = PGSIZE - page_read_bytes;
 
+       
         /* Get a page of memory. */
         uint8_t *kpage = palloc_get_page(PAL_USER);
         if (kpage == NULL)
@@ -664,7 +665,7 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
             palloc_free_page(kpage);
             return false;
         }
-
+      
         /* Advance. */
         read_bytes -= page_read_bytes;
         zero_bytes -= page_zero_bytes;
@@ -687,6 +688,7 @@ setup_stack(struct intr_frame *if_) {
         else
             palloc_free_page(kpage);
     }
+
     return success;
 }
 
@@ -740,6 +742,31 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
     ASSERT(pg_ofs(upage) == 0);
     ASSERT(ofs % PGSIZE == 0);
 
+    //! ì¶”ê°€
+    /* vm_entry ìƒì„± (malloc ì‚¬ìš©) */
+    // struct page *p = (struct page*)malloc(sizeof(struct page)); //! mallocì´ ë§ë‚˜? pallocì´ ë§ë‚˜?
+    //! ê²°ë¡  : pallocì´ ë§ë‹¤ê³  íŒë‹¨.
+    struct page *p = palloc_get_page(PAL_USER);
+    /* vm_entry ë©¤ë²„ë“¤ ì„¤ì •, ê°€ìƒí˜ì´ì§€ê°€ ìš”êµ¬ë  ë•Œ ì½ì–´ì•¼í•  íŒŒì¼ì˜ ì˜¤í”„
+    ì…‹ê³¼ ì‚¬ì´ì¦ˆ, ë§ˆì§€ë§‰ì— íŒ¨ë”©í•  ì œë¡œ ë°”ì´íŠ¸ ë“±ë“± */
+    p->offset = ofs;
+    p->read_bytes = page_read_bytes;
+    p->zero_bytes = page_zero_bytes;
+    p->writable = writable;
+    p->file = file;
+    p->va = upage;
+    /* insert_vme() í•¨ìˆ˜ë¥¼ ì‚¬ìš©í•´ì„œ ìƒì„±í•œ vm_entryë¥¼ í•´ì‹œí…Œì´ë¸”ì— ì¶”
+    ê°€ */
+
+        
+    if(!spt_insert_page(&thread_current()->spt), p) {
+        palloc_free_page(p);
+        return false;
+    }
+    //! - -- - -- - -- - -- -- - -- -- - -- - - -- - -- -- - -- - -- -- - -
+
+
+
     while (read_bytes > 0 || zero_bytes > 0) {
         /* Do calculate how to fill this page.
 		 * We will read PAGE_READ_BYTES bytes from FILE
@@ -757,6 +784,8 @@ load_segment(struct file *file, off_t ofs, uint8_t *upage,
         read_bytes -= page_read_bytes;
         zero_bytes -= page_zero_bytes;
         upage += PGSIZE;
+        //ofs += page_read_bytes; //! ì–˜ëŠ” pptì— ì²˜ë¦¬ë˜ì–´ìˆì—ˆëŠ”ë° ì½”ë“œìƒì— ì—†ì–´ì„œ ì¼ë‹¨ ì¶”ê°€í›„ ì£¼ì„í•´ë‘ 
+
     }
     return true;
 }
@@ -829,12 +858,12 @@ struct thread *get_child_process(int pid) {
 
 void *remove_child_process(struct thread *cp) {
     list_remove(&cp->allelem);
-    // list_remove(&cp->elem); // destruction¿¡ µé¾î°¡ÀÖ´ø¾Ö
+    // list_remove(&cp->elem); // destructionï¿½ï¿½ ï¿½ï¿½î°¡ï¿½Ö´ï¿½ï¿½ï¿½
     list_remove(&cp->childelem);
 
-    //¹®Á¦ »ı±â¸é ¿©±â pml???
+    //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ pml???
     palloc_free_page((void *)cp);
-    //Ã£¾Æº¸±â
+    //Ã£ï¿½Æºï¿½ï¿½ï¿½
 }
 
 int process_add_file(struct file *f) {
