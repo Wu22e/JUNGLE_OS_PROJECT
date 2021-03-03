@@ -57,7 +57,7 @@ static long long kernel_ticks; /* # of timer ticks in kernel threads. */
 static long long user_ticks;   /* # of timer ticks in user programs. */
 
 /* Scheduling. */
-#define TIME_SLICE 4          /* # of timer ticks to give each thread. */
+#define TIME_SLICE 4         /* # of timer ticks to give each thread. */
 static unsigned thread_ticks; /* # of timer ticks since last yield. */
 
 /* If false (default), use round-robin scheduler.
@@ -217,7 +217,7 @@ tid_t thread_create(const char *name, int priority,
         t->parent = thread_current();
         list_push_back(&thread_current()->child_list, &t->childelem);
     }
-
+   
     /* Add to run queue. */
     thread_unblock(t);
     test_max_priority();
@@ -297,8 +297,6 @@ void thread_exit(void) {
 #ifdef USERPROG
     process_exit();
 #endif
-
-    sema_up(&thread_current()->exit_semaphore);
 
     /* Just set our status to dying and schedule another process.
 	   We will be destroyed during the call to schedule_tail(). */
@@ -530,6 +528,7 @@ init_thread(struct thread *t, const char *name, int priority) {
     list_push_back(&all_list, &t->allelem);
 
     list_init(&t->child_list);
+   
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -666,7 +665,9 @@ do_schedule(int status) {
     if (status == THREAD_DYING) {
         list_remove(&thread_current()->allelem);
     }
-
+    if(status == THREAD_DYING || status == THREAD_BLOCKED) {
+        sema_up(&thread_current()->exit_semaphore);
+    }
     thread_current()->status = status;
     schedule();
 }
@@ -712,6 +713,7 @@ schedule(void) {
 
         /* Before switching the thread, we first save the information
 		 * of current running. */
+
         thread_launch(next);
     }
 }
@@ -736,7 +738,12 @@ void test_max_priority(void) {
     struct list_elem *first_element = list_begin(&ready_list);
     struct thread *first_thread = list_entry(first_element, struct thread, elem);
     if (!list_empty(&ready_list) && curr->priority < first_thread->priority) {
-        thread_yield();
+        if(!intr_context()){
+            thread_yield();
+        }
+        else {
+            intr_yield_on_return();
+        }
     }
 }
 

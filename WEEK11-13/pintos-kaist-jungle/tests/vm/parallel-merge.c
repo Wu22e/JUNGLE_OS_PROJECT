@@ -51,6 +51,7 @@ sort_chunks (const char *subprocess, int exit_status)
 
       /* Write this chunk to a file. */
       snprintf (fn, sizeof fn, "buf%zu", i);
+
       create (fn, CHUNK_SIZE);
       quiet = true;
       CHECK ((handle = open (fn)) > 1, "open \"%s\"", fn);

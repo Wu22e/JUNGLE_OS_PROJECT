@@ -185,8 +185,9 @@ disk_get (int chan_no, int dev_no) {
 
 	if (chan_no < (int) CHANNEL_CNT) {
 		struct disk *d = &channels[chan_no].devices[dev_no];
-		if (d->is_ata)
+		if (d->is_ata){
 			return d;
+		}
 	}
 	return NULL;
 }
@@ -324,7 +325,6 @@ check_device_type (struct disk *d) {
 	lbam = inb (reg_lbam (c));
 	lbah = inb (reg_lbah (c));
 	status = inb (reg_status (c));
-
 	if ((error != 1 && (error != 0x81 || d->dev_no == 1))
 			|| (status & STA_DRDY) == 0
 			|| (status & STA_BSY) != 0) {

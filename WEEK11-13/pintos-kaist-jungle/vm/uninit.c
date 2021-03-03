@@ -27,6 +27,7 @@ void
 uninit_new (struct page *page, void *va, vm_initializer *init,
 		enum vm_type type, void *aux,
 		bool (*initializer)(struct page *, enum vm_type, void *)) {
+
 	ASSERT (page != NULL);
 
 	*page = (struct page) {
@@ -40,6 +41,7 @@ uninit_new (struct page *page, void *va, vm_initializer *init,
 			.page_initializer = initializer,
 		}
 	};
+    
 }
 
 /* Initalize the page on first fault */
@@ -52,6 +54,7 @@ uninit_initialize (struct page *page, void *kva) {
 	void *aux = uninit->aux;
 
 	/* TODO: You may need to fix this function. */
+
 	return uninit->page_initializer (page, uninit->type, kva) &&
 		(init ? init (page, aux) : true);
 }
@@ -62,7 +65,12 @@ uninit_initialize (struct page *page, void *kva) {
  * PAGE will be freed by the caller. */
 static void
 uninit_destroy (struct page *page) {
-	struct uninit_page *uninit UNUSED = &page->uninit;
+	struct uninit_page *uninit UNUSED = &page->uninit; //! 스켈레톤 코든데 안쓰는거 같아 지워둠
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
+    // if ( is_~ ==1)
+    // printf("this is uninit_destroy\n");
+    // free(page->frame);
+    free(page->uninit.aux);
+    return;
 }

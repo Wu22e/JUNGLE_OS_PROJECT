@@ -30,6 +30,10 @@ typedef int tid_t;
 #define PRI_DEFAULT 31 /* Default priority. */
 #define PRI_MAX 63     /* Highest priority. */
 
+struct list victim_list; //! 2/26 ì¶”ï¿½?? : victim?ï¿½ï¿½ ????ï¿½ï¿½?ï¿½ï¿½ list (?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ï¿½? ï¿½?ï¿½?)
+//! thread?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½ï¿½? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ thread aï¿½? ram?ï¿½ï¿½ ?ï¿½ï¿½ ?ï¿½ï¿½ê²½ìš° ?ï¿½ï¿½ï¿½? thread bï¿½? swap out?ï¿½ï¿½ê³ ì‹¶?ï¿½ï¿½?ï¿½ï¿½
+//! thread a?ï¿½ï¿½ pageï¿½? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ê³ ìžˆ?ï¿½ï¿½ï¿½?ï¿½? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½
+
 /* A kernel thread or user process.
  *
  * Each thread structure is stored in its own 4 kB page.  The
@@ -101,9 +105,9 @@ struct thread {
     /* Shared between thread.c and synch.c. */
     struct list_elem allelem;
     struct list_elem elem;           /* List element. */
-    struct lock *wait_on_lock;       //ÇØ´ç ½º·¹µå°¡ ´ë±â ÇÏ°í ÀÖ´Â lock ÀÚ·á±¸Á¶ÀÇ ÁÖ¼Ò¸¦ ÀúÀå
-    struct list donations;           //µµ³×ÀÌ¼Ç ¸®½ºÆ® (multiple donation °í·Á À§ÇØ »ç¿ë)
-    struct list_elem donation_elem;  //µµ³×ÀÌ¼Ç ¸®½ºÆ®¿¡ µé¾î°¥ elem
+    struct lock *wait_on_lock;       //ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½? ï¿½Ï°ï¿½ ï¿½Ö´ï¿½ lock ï¿½Ú·á±¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+    struct list donations;           //ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® (multiple donation ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½?)
+    struct list_elem donation_elem;  //ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½? elem
 
     struct thread *parent;
     struct list_elem childelem;
@@ -111,6 +115,7 @@ struct thread {
 
     struct semaphore exit_semaphore;
     struct semaphore load_semaphore;
+
     struct semaphore fork_semaphore;
 
     int child_load_status;
@@ -128,12 +133,13 @@ struct thread {
 #endif
 #ifdef VM
     /* Table for whole virtual memory owned by thread. */
-    struct supplemental_page_table spt; //! Ãß°¡ ½º·¹µå°¡ °¡Áø °¡»ó ÁÖ¼Ò °ø°£À» °ü¸®ÇÏ´Â ÇØ½ÃÅ×ÀÌºí 
+    struct supplemental_page_table spt; //! ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½
+    struct list mmap_list; //! 02/27 ï¿½ß°ï¿½ : 
     
 #endif
-
     /* Owned by thread.c. */
     struct intr_frame tf; /* Information for switching */
+    uintptr_t rsp_stack;
     unsigned magic;       /* Detects stack overflow. */
 };
 
@@ -156,8 +162,8 @@ void thread_awake(int64_t ticks);
 void update_next_tick_to_awake(int64_t tick);
 int64_t get_next_tick_to_awake(void);
 
-void test_max_priority(void);                                                               //ÇöÀç ¼öÇàÁßÀÎ ½º·¹µå¿Í °¡Àå ³ôÀº ¿ì¼±¼øÀ§ÀÇ ½º·¹µåÀÇ ¿ì¼±¼øÀ§¸¦ ºñ±³ÇÏ¿© ½ºÄÉÁÙ¸µ
-bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);  // ÀÎÀÚ·Î ÁÖ¾îÁø ½º·¹µåµéÀÇ ¿ì¼±¼øÀ§ ºñ±³
+void test_max_priority(void);                                                               //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½? ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ì¼±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ì¼±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ù¸ï¿½
+bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);  // ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½? ï¿½ì¼±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 
 void thread_block(void);
 void thread_unblock(struct thread *);

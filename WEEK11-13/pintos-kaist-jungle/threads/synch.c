@@ -66,7 +66,7 @@ sema_down (struct semaphore *sema) {
 
 	old_level = intr_disable ();
 	while (sema->value == 0) {
-        list_insert_ordered(&sema->waiters, &thread_current ()->elem, cmp_priority, NULL);//waiters ¸®½ºÆ® »ðÀÔ ½Ã, ¿ì¼±¼øÀ§´ë·Î »ðÀÔµÇµµ·Ï
+        list_insert_ordered(&sema->waiters, &thread_current ()->elem, cmp_priority, NULL);//waiters ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, ï¿½ì¼±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÔµÇµï¿½ï¿½ï¿½
 		thread_block ();
 	}
 	sema->value--;
@@ -116,7 +116,7 @@ sema_up (struct semaphore *sema) {
 					struct thread, elem));
     }    
 	sema->value++;
-    test_max_priority(); //sema È¹µæÇßÀ» ¶§ unblock µÅ¼­ readylist¿¡ µé¾î°¬À¸´Ï±î ÇöÀç ¼öÇàÁßÀÎ ¾²·¹µå¿Í ºñ±³ÇØ¼­ ¼±Á¡
+    test_max_priority(); //sema È¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ unblock ï¿½Å¼ï¿½ readylistï¿½ï¿½ ï¿½ï¿½î°¬ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 	intr_set_level (old_level);
 }
 
@@ -192,11 +192,13 @@ lock_acquire (struct lock *lock) {
 	ASSERT (!intr_context ());
 	ASSERT (!lock_held_by_current_thread (lock));
     if (thread_mlfqs == false){
-        if (lock->holder != NULL)//holder°¡ Á¸ÀçÇÏ¸é
+        if (lock->holder != NULL)//holderï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½
         {
-        thread_current()->wait_on_lock = lock;
-        list_insert_ordered(&lock->holder->donations, &thread_current()->donation_elem, cmp_donation_priority, NULL);
-        donate_priority();
+            thread_current()->wait_on_lock = lock;
+            if (lock->holder->priority < thread_current()->priority){
+                list_insert_ordered(&lock->holder->donations, &thread_current()->donation_elem, cmp_donation_priority, NULL);
+            }
+            donate_priority();
         }
     }
     

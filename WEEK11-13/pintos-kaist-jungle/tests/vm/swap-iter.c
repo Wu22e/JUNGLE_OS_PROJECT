@@ -29,7 +29,6 @@ test_main (void)
             msg ("write sparsely over page %zu", i);
         big_chunks[i*PAGE_SIZE] = (char) i;
     }
-
     CHECK ((handle = open ("large.txt")) > 1, "open \"large.txt\"");
     CHECK ((map = mmap (actual, sizeof(large), 0, handle, 0)) != MAP_FAILED, "mmap \"large.txt\"");
 
@@ -45,7 +44,6 @@ test_main (void)
         if ((i & 0x1ff) == 0)
             msg ("check consistency in page %zu", i);
     }
-
     /* Check file map'd page again */
     if (memcmp (actual, large, strlen (large)))
         fail ("read of mmap'd file reported bad data");

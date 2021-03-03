@@ -1,8 +1,5 @@
 {
     "files.associations": {
-        "random": "cpp",
-        "atomic": "cpp",
-        "memory": "cpp",
-        "xstring": "cpp"
+        "*.tcc": "c"
     }
 }

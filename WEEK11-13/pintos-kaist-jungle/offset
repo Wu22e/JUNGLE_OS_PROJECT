@@ -1,0 +1,206 @@
+vm/file.c:	page->operations = &file_ops;
+vm/file.c:	struct file_page *file_page = &page->file;
+vm/file.c:	struct file_page *file_page UNUSED = &page->file;
+vm/file.c:	struct file_page *file_page UNUSED = &page->file;
+vm/file.c:	struct file_page *file_page UNUSED = &page->file;
+vm/uninit.c: * the handler chain calls uninit_initialize (page->operations.swap_in).
+vm/uninit.c:	struct uninit_page *uninit = &page->uninit;
+vm/uninit.c:	struct uninit_page *uninit UNUSED = &page->uninit;
+vm/vm.c:	int ty = VM_TYPE (page->operations->type);
+vm/vm.c:			return VM_TYPE (page->uninit.type);
+vm/vm.c:		page->writable = writable; //todo 이거 확인해야함
+vm/vm.c:    page->va = pg_round_down(va); //? 이게 가능했던 이유가 뭐였을까?
+vm/vm.c:    elem = hash_find(&spt->vm, &page->elem);
+vm/vm.c:    if(!hash_insert(&spt->vm, &page->elem)) succ = true;
+vm/vm.c:    if(hash_delete(&spt->vm, &page->elem)) succ = true;
+vm/vm.c:	page->frame = frame;
+vm/vm.c:	if(!pml4_set_page(&thread_current()->pml4, page->va,frame->kva, page->writable));
+vm/vm.c:	//! 여기서 page->va는 user virtual address임
+vm/anon.c:	page->operations = &anon_ops;
+vm/anon.c:	struct anon_page *anon_page = &page->anon;
+vm/anon.c:	struct anon_page *anon_page = &page->anon;
+vm/anon.c:	struct anon_page *anon_page = &page->anon;
+vm/anon.c:	struct anon_page *anon_page = &page->anon;
+Binary file .git/index matches
+userprog/process.c:        // palloc_free_page(page->va);
+userprog/process.c:    page->va = stack_bottom;
+userprog/process.c:    page->writable = true;
+userprog/process.c:    page->frame = frame;
+userprog/process.c:    install_page(page->va, frame->kva, page->writable);
+Binary file userprog/process.c matches
+tests/vm/page-merge-seq.ck:(page-merge-seq) begin
+tests/vm/page-merge-seq.ck:(page-merge-seq) init
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 0
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[0] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[0] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 1
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[1] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[1] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 2
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[2] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[2] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 3
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[3] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[3] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 4
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[4] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[4] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 5
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[5] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[5] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 6
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[6] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[6] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 7
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[7] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[7] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 8
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[8] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[8] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 9
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[9] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[9] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 10
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[10] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[10] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 11
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[11] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[11] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 12
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[12] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[12] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 13
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[13] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[13] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 14
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[14] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[14] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) sort chunk 15
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[15] exec
+tests/vm/page-merge-seq.ck:(page-merge-seq) child[15] wait success
+tests/vm/page-merge-seq.ck:(page-merge-seq) merge
+tests/vm/page-merge-seq.ck:(page-merge-seq) verify
+tests/vm/page-merge-seq.ck:(page-merge-seq) success, buf_idx=1,032,192
+tests/vm/page-merge-seq.ck:(page-merge-seq) end
+tests/vm/Make.tests:pt-write-code2 pt-grow-stk-sc page-linear page-parallel page-merge-seq	\
+tests/vm/Make.tests:page-merge-par page-merge-stk page-merge-mm page-shuffle mmap-read	\
+tests/vm/Make.tests:tests/vm/page-linear_SRC = tests/vm/page-linear.c tests/arc4.c	\
+tests/vm/Make.tests:tests/vm/page-parallel_SRC = tests/vm/page-parallel.c tests/lib.c tests/main.c
+tests/vm/Make.tests:tests/vm/page-merge-seq_SRC = tests/vm/page-merge-seq.c tests/arc4.c	\
+tests/vm/Make.tests:tests/vm/page-merge-par_SRC = tests/vm/page-merge-par.c \
+tests/vm/Make.tests:tests/vm/page-merge-stk_SRC = tests/vm/page-merge-stk.c \
+tests/vm/Make.tests:tests/vm/page-merge-mm_SRC = tests/vm/page-merge-mm.c \
+tests/vm/Make.tests:tests/vm/page-shuffle_SRC = tests/vm/page-shuffle.c tests/arc4.c	\
+tests/vm/Make.tests:tests/vm/page-parallel_PUTFILES = tests/vm/child-linear
+tests/vm/Make.tests:tests/vm/page-merge-seq_PUTFILES = tests/vm/child-sort
+tests/vm/Make.tests:tests/vm/page-merge-par_PUTFILES = tests/vm/child-sort
+tests/vm/Make.tests:tests/vm/page-merge-stk_PUTFILES = tests/vm/child-qsort
+tests/vm/Make.tests:tests/vm/page-merge-mm_PUTFILES = tests/vm/child-qsort-mm
+tests/vm/Make.tests:tests/vm/page-linear.output: TIMEOUT = 300
+tests/vm/Make.tests:tests/vm/page-shuffle.output: TIMEOUT = 600
+tests/vm/Make.tests:tests/vm/page-shuffle.output: MEMORY = 20
+tests/vm/Make.tests:tests/vm/page-merge-seq.output: TIMEOUT = 600
+tests/vm/Make.tests:tests/vm/page-merge-par.output: TIMEOUT = 600
+tests/vm/page-merge-stk.ck:(page-merge-stk) begin
+tests/vm/page-merge-stk.ck:(page-merge-stk) init
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 0
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 1
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 2
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 3
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 4
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 5
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 6
+tests/vm/page-merge-stk.ck:(page-merge-stk) sort chunk 7
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 0
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 1
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 2
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 3
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 4
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 5
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 6
+tests/vm/page-merge-stk.ck:(page-merge-stk) wait for child 7
+tests/vm/page-merge-stk.ck:(page-merge-stk) merge
+tests/vm/page-merge-stk.ck:(page-merge-stk) verify
+tests/vm/page-merge-stk.ck:(page-merge-stk) success, buf_idx=1,048,576
+tests/vm/page-merge-stk.ck:(page-merge-stk) end
+tests/vm/page-merge-par.ck:(page-merge-par) begin
+tests/vm/page-merge-par.ck:(page-merge-par) init
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 0
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 1
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 2
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 3
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 4
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 5
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 6
+tests/vm/page-merge-par.ck:(page-merge-par) sort chunk 7
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 0
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 1
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 2
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 3
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 4
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 5
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 6
+tests/vm/page-merge-par.ck:(page-merge-par) wait for child 7
+tests/vm/page-merge-par.ck:(page-merge-par) merge
+tests/vm/page-merge-par.ck:(page-merge-par) verify
+tests/vm/page-merge-par.ck:(page-merge-par) success, buf_idx=1,048,576
+tests/vm/page-merge-par.ck:(page-merge-par) end
+tests/vm/page-parallel.ck:(page-parallel) begin
+tests/vm/page-parallel.ck:(page-parallel) wait for child 0
+tests/vm/page-parallel.ck:(page-parallel) wait for child 1
+tests/vm/page-parallel.ck:(page-parallel) wait for child 2
+tests/vm/page-parallel.ck:(page-parallel) wait for child 3
+tests/vm/page-parallel.ck:(page-parallel) end
+tests/vm/page-linear.ck:(page-linear) begin
+tests/vm/page-linear.ck:(page-linear) initialize
+tests/vm/page-linear.ck:(page-linear) read pass
+tests/vm/page-linear.ck:(page-linear) read/modify/write pass one
+tests/vm/page-linear.ck:(page-linear) read/modify/write pass two
+tests/vm/page-linear.ck:(page-linear) read pass
+tests/vm/page-linear.ck:(page-linear) end
+tests/vm/child-linear.c:/* Child process of page-parallel.
+tests/vm/Rubric.functionality:3	page-linear
+tests/vm/Rubric.functionality:5	page-parallel
+tests/vm/Rubric.functionality:3	page-shuffle
+tests/vm/Rubric.functionality:3	page-merge-seq
+tests/vm/Rubric.functionality:5	page-merge-par
+tests/vm/Rubric.functionality:5	page-merge-mm
+tests/vm/Rubric.functionality:5	page-merge-stk
+tests/vm/page-shuffle.ck:(page-shuffle) begin
+tests/vm/page-shuffle.ck:(page-shuffle) init: cksum=$init
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 0: cksum=$shuffle[0]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 1: cksum=$shuffle[1]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 2: cksum=$shuffle[2]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 3: cksum=$shuffle[3]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 4: cksum=$shuffle[4]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 5: cksum=$shuffle[5]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 6: cksum=$shuffle[6]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 7: cksum=$shuffle[7]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 8: cksum=$shuffle[8]
+tests/vm/page-shuffle.ck:(page-shuffle) shuffle 9: cksum=$shuffle[9]
+tests/vm/page-shuffle.ck:(page-shuffle) end
+tests/vm/page-merge-mm.ck:(page-merge-mm) begin
+tests/vm/page-merge-mm.ck:(page-merge-mm) init
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 0
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 1
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 2
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 3
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 4
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 5
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 6
+tests/vm/page-merge-mm.ck:(page-merge-mm) sort chunk 7
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 0
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 1
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 2
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 3
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 4
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 5
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 6
+tests/vm/page-merge-mm.ck:(page-merge-mm) wait for child 7
+tests/vm/page-merge-mm.ck:(page-merge-mm) merge
+tests/vm/page-merge-mm.ck:(page-merge-mm) verify
+tests/vm/page-merge-mm.ck:(page-merge-mm) success, buf_idx=1,048,576
+tests/vm/page-merge-mm.ck:(page-merge-mm) end
+threads/palloc.c:/* Page allocator.  Hands out memory in page-size (or
+threads/palloc.c:   page-multiple) chunks.  See malloc.h for an allocator that
+filesys/page_cache.c:	page->operations = &page_cache_op;

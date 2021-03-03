@@ -244,7 +244,9 @@ run_task (char **argv) {
 	if (thread_tests){
 		run_test (task);
 	} else {
+        // printf("----->is process_create_initd called?  1<--------\n");
 		process_wait (process_create_initd (task));
+        // printf("----->is process_create_initd called?  2<--------\n");
 	}
 #else
 	run_test (task);
