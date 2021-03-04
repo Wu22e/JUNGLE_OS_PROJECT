@@ -176,16 +176,20 @@ bool create(const char *file, unsigned initial_size) {
     if (file == NULL)
         exit(-1);
     check_address(file);
+    lock_acquire(&filesys_lock);
     if (strlen(file) > 14 || strlen(file) == 0) {
         return 0;
     }
     bool result = filesys_create(file, initial_size);
+    lock_release(&filesys_lock);
     return result;
 }
 
 bool remove(const char *file) {
     check_address(file);
+    lock_acquire(&filesys_lock);
     bool result = filesys_remove(file);
+    lock_release(&filesys_lock);
     return result;
 }
 
@@ -214,9 +218,9 @@ pid_t fork(const char *thread_name, struct intr_frame *f) {
 
 int exec(const char *cmd_line) {
     // puts("------------------ userprog/syscall.c:exec               ------------------");
-    process_exec(cmd_line);
-    if (thread_current()->parent != NULL) {
-    }
+    return process_exec(cmd_line);
+    // if (thread_current()->parent != NULL) {
+    // }
 }
 
 int wait(pid_t pid) {
@@ -235,11 +239,13 @@ int open(const char *file) {
     }
 
     struct file *open_file;
+    lock_acquire(&filesys_lock);
     open_file = filesys_open(file);
 
     if (strcmp(thread_current()->name, file) == 0) {
         file_deny_write(open_file);
     }
+    lock_release(&filesys_lock);
 
     if (open_file == NULL) {
         return -1;
@@ -281,9 +287,9 @@ int read(int fd, void *buffer, unsigned length) {
         }
         return length;
     } else {
-        lock_acquire(&filesys_lock);
         // struct file *target_file =  process_get_file(fd);
 
+        lock_acquire(&filesys_lock);
         struct thread *curr = thread_current();
         struct file *target_file = curr->fd_table[fd];
         if (target_file == NULL)
@@ -292,6 +298,7 @@ int read(int fd, void *buffer, unsigned length) {
         if (target_file->deny_write) {
             result = 0;
         }
+
         result = file_read(target_file, buffer, length);
         lock_release(&filesys_lock);
         return result;
@@ -327,12 +334,19 @@ int write(int fd, const void *buffer, unsigned length) {
 
 void seek(int fd, unsigned position) {
     struct file *target_file = process_get_file(fd);
+        lock_acquire(&filesys_lock);
+    
     file_seek(target_file, position);
+        lock_release(&filesys_lock);
+
 }
 
 unsigned tell(int fd) {
     struct file *target_file = process_get_file(fd);
-    return file_tell(target_file);
+    lock_acquire(&filesys_lock);
+    unsigned temp = file_tell(target_file); 
+        lock_release(&filesys_lock);
+    return temp;
 }
 
 void close(int fd) {
@@ -385,13 +399,21 @@ void *mmap(void *addr, size_t length, int writable, int fd, off_t offset) {
             return NULL;
         }
     }
-    return do_mmap(addr, length, writable, file, offset);
+
+
+    lock_acquire(&filesys_lock);
+    struct file *newfile = file_reopen(file);
+    lock_release(&filesys_lock);
+    // process_add_file(newfile);
+
+    return do_mmap(addr, length, writable, newfile, offset);
 }
 
 void munmap(void *addr){
     struct page *page = spt_find_page(&thread_current()->spt, addr);
 
     while(page_get_type(page) == VM_FILE){
+        // printf("------------>here\n");
         do_munmap(addr);
         addr = addr + PGSIZE;
         // file_close(page->file.vafile);

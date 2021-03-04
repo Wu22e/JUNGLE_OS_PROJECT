@@ -195,9 +195,9 @@ lock_acquire (struct lock *lock) {
         if (lock->holder != NULL)//holder�� �����ϸ�
         {
             thread_current()->wait_on_lock = lock;
-            if (lock->holder->priority < thread_current()->priority){
+            // if (lock->holder->priority < thread_current()->priority){
                 list_insert_ordered(&lock->holder->donations, &thread_current()->donation_elem, cmp_donation_priority, NULL);
-            }
+            // }
             donate_priority();
         }
     }

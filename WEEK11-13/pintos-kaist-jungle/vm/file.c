@@ -3,6 +3,7 @@
 #include "vm/vm.h"
 
 
+
 static bool file_backed_swap_in (struct page *page, void *kva);
 static bool file_backed_swap_out (struct page *page);
 static void file_backed_destroy (struct page *page);
@@ -66,13 +67,17 @@ file_backed_destroy(struct page *page) {
         do_munmap(page->va);
     }
 
-    free(file_page->file_info);
+    // free(file_page->file_info);
 }
 
 /* Do the mmap */
 void *
 do_mmap(void *addr, size_t length, int writable, struct file *file, off_t offset) {
-    struct file *newfile = file_reopen(file);
+    // lock_acquire(&filesys_lock);
+    // struct file *newfile = file_reopen(file);
+    // lock_release(&filesys_lock);
+    // process_add_file(newfile);
+
     void *upage = addr;
     off_t ofs = offset;
     uint32_t read_bytes = length;
@@ -84,7 +89,7 @@ do_mmap(void *addr, size_t length, int writable, struct file *file, off_t offset
         size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
         size_t page_zero_bytes = PGSIZE - page_read_bytes;
         void *aux = NULL;
-        file_info->file = newfile;
+        file_info->file = file;
         // file_info->file = file;
         file_info->ofs = ofs;
         file_info->page_read_bytes = page_read_bytes;
@@ -118,8 +123,9 @@ do_mmap(void *addr, size_t length, int writable, struct file *file, off_t offset
 
 void do_munmap(void *addr) {
     struct page *page = spt_find_page(&thread_current()->spt, addr);
-
+// printf("------------>here\n");
     if (pml4_is_dirty(thread_current()->pml4, addr)) {  
+        // file_seek(page->file.vafile, page->file.file_info->ofs);
         file_write_at(page->file.vafile, addr, PGSIZE, page->file.offset);  
     }
 }

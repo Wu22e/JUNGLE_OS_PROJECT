@@ -7,6 +7,8 @@
 //! 추가 (헤더 추가)
 #include "hash.h"  //! 추가 : 커널 라이브러리에 있으면 경로 없어도 된다.
 #include "threads/vaddr.h"
+// //! 3/3 추가 : file_reopen에 filesys_lock 걸어주기 위함
+// #include "userprog/syscall.h"
 // #include "threads/thread.h" //! 2/26 victim list 관리를 위해 추가
 #define DEBUGx
 

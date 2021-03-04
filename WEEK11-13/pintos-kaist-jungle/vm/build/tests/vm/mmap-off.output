@@ -32,8 +32,8 @@ Executing 'mmap-off':
 (mmap-off) end
 mmap-off: exit(0)
 Execution of 'mmap-off' complete.
-Timer: 248 ticks
-Thread: 30 idle ticks, 212 kernel ticks, 6 user ticks
+Timer: 239 ticks
+Thread: 30 idle ticks, 203 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 164 reads, 15920 writes
 hd1:0: 7933 reads, 0 writes

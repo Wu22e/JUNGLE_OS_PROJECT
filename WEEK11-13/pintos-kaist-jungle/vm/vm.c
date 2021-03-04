@@ -235,7 +235,7 @@ bool vm_try_handle_fault(struct intr_frame *f UNUSED, void *addr UNUSED,
     struct page *page = NULL;
     /* TODO: Validate the fault */
     /* TODO: Your code goes here */
-    if(is_kernel_vaddr(addr)){
+    if(is_kernel_vaddr(addr) || addr == NULL){
             // printf("1\n");
 
         return false;
@@ -247,7 +247,7 @@ bool vm_try_handle_fault(struct intr_frame *f UNUSED, void *addr UNUSED,
 
     if(not_present){
         if(page == NULL){
-            if(rsp_stack - 8 <= addr && USER_STACK - 0x100000 <= addr && addr <= USER_STACK){
+            if(rsp_stack - addr <= 8 && USER_STACK - 0x100000 <= addr && addr <= USER_STACK){
                 vm_stack_growth(addr);
                 // printf("sibala1\n");
             // printf("2\n");
@@ -295,6 +295,43 @@ bool vm_try_handle_fault(struct intr_frame *f UNUSED, void *addr UNUSED,
     //     return vm_do_claim_page(page);
     // }
 }
+
+
+
+
+// bool vm_try_handle_fault(struct intr_frame *f UNUSED, void *addr UNUSED, bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
+//     struct supplemental_page_table *spt UNUSED = &thread_current()->spt;
+//     struct page *page = NULL;
+//     /* TODO: Validate the fault */
+//     /* TODO: Your code goes here */
+//     page = spt_find_page(spt, addr);
+//     if (page == NULL) {
+//        /*
+//        (1) PF가 발생했고, 
+//        (2) 해당 Faulting Address가 SPT에 등록되어있지 않은 영역 (아직 할당되지 않은 페이지)인 경우,
+//         Fatulting Address을 확인해서 Faulting Address가 (rsp - 8)이상이고 USER_STACK 미만인 경우에 
+//         한해서 stack을 추가 할당해주시면 됩니다.
+//        */
+//         if (((int)addr- (int)f->rsp) >= -8 && user && write && not_present && (addr < USER_STACK)) { //!3.3 
+//             if (pg_round_down(addr) <= USER_STACK - (1 << 20)) { //mint 등호 추가해줌
+//                 return;
+//             }
+//             vm_stack_growth(addr);
+//         } else {
+//             // puts("wrong address access");
+//             exit(-1);
+//         }
+//     } else {
+//         if (page->writable == 0 && write == 1) {
+//             // puts("try to write to a wrong place");
+//             exit(-1);
+//         }
+//         return vm_do_claim_page(page);
+//     }
+// }
+
+
+
 
 /* Free the page. 
  * DO NOT MODIFY THIS FUNCTION. */

@@ -10,11 +10,11 @@
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
 
-/* On-disk inode.
+/* On-disk inode. //! 얘는 disk 상의 inode (찐 데이터)
  * Must be exactly DISK_SECTOR_SIZE bytes long. */
-struct inode_disk {
-	disk_sector_t start;                /* First data sector. */
-	off_t length;                       /* File size in bytes. */
+struct inode_disk { 
+	disk_sector_t start;                /* First data sector. */  //@ sector number of the first block of the file.
+	off_t length;                       /* File size in bytes. */ 
 	unsigned magic;                     /* Magic number. */
 	uint32_t unused[125];               /* Not used. */
 };
@@ -26,7 +26,7 @@ bytes_to_sectors (off_t size) {
 	return DIV_ROUND_UP (size, DISK_SECTOR_SIZE);
 }
 
-/* In-memory inode. */
+/* In-memory inode. */ //! 얘는 메모리 상의 inode (메타 데이터)
 struct inode {
 	struct list_elem elem;              /* Element in inode list. */
 	disk_sector_t sector;               /* Sector number of disk location. */
@@ -76,10 +76,27 @@ inode_create (disk_sector_t sector, off_t length) {
 	ASSERT (sizeof *disk_inode == DISK_SECTOR_SIZE);
 
 	disk_inode = calloc (1, sizeof *disk_inode);
+	
 	if (disk_inode != NULL) {
 		size_t sectors = bytes_to_sectors (length);
 		disk_inode->length = length;
 		disk_inode->magic = INODE_MAGIC;
+#ifdef EFILESYS
+        
+        cluster_t new_clst = fat_create_chain(0);
+        inode_sector = cluster_to_sector(new_clst);
+        if (new_clst) {
+			disk_write (filesys_disk, sector, disk_inode);
+			if (sectors > 0) {
+				static char zeros[DISK_SECTOR_SIZE];
+				size_t i;
+
+				for (i = 0; i < sectors; i++) 
+					disk_write (filesys_disk, disk_inode->start + i, zeros); 
+			}
+			success = true; 
+		} 
+#else
 		if (free_map_allocate (sectors, &disk_inode->start)) {
 			disk_write (filesys_disk, sector, disk_inode);
 			if (sectors > 0) {
@@ -91,8 +108,12 @@ inode_create (disk_sector_t sector, off_t length) {
 			}
 			success = true; 
 		} 
+#endif
+
+
 		free (disk_inode);
 	}
+
 	return success;
 }
 

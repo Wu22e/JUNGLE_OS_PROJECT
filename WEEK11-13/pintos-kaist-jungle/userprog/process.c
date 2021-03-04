@@ -286,7 +286,7 @@ void process_exit(void) {
         close(i);
     }
     
-    palloc_free_page(curr->fd_table);
+    process_cleanup();
 
     /* TODO: Your code goes here.
 	 * TODO: Implement process termination message (see
@@ -295,7 +295,7 @@ void process_exit(void) {
     if (curr->current_file != NULL) {
         file_close(curr->current_file);
     }
-    process_cleanup();
+    palloc_free_page(curr->fd_table);
 }
 
 /* Free the current process's resources. */
