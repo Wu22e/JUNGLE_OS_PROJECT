@@ -17,4 +17,5 @@
 
 운영체제 소스코드는 kaist 전산학부의 운영체제 수업의 소스코드와 동일하므로
 private repository로 형성하였습니다.
+
 관련 내용은 https://velog.io/@wu2ee/series/OS-PROJECT 에 정리해 두었습니다.
